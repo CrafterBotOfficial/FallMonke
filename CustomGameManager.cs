@@ -16,9 +16,9 @@ public class CustomGameManager : GorillaGameManager
     public override void StartPlaying()
     {
         base.StartPlaying();
-         // honestly idk if this is right for this situation but it looks cool, so todo investigate how this actually works
         Players = (
             from player in NetworkSystem.Instance.AllNetPlayers
+            where IsPlayerValid(player)
             select new Participant(player, FindPlayerVRRig(player))
         )
         .ToList();
@@ -33,13 +33,11 @@ public class CustomGameManager : GorillaGameManager
         if (!NetworkSystem.Instance.IsMasterClient) 
             return;
 
-        int alivePlayers = (
-            from player in Players 
-            select player.IsAlive == true
-        ).Count();
+        int alivePlayers = Players.Count(player => player.IsAlive);
+        CurrentStateHandler.
     }
 
-    private bool IsPlayerValid() {
+    private bool IsPlayerValid(NetPlayer player) {
         return true;
     }
 
