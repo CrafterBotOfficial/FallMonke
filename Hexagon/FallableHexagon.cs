@@ -1,9 +1,50 @@
+using UnityEngine;
+using System.Collections;
+
 namespace FallMonke.Hexagon;
 
-public class FallableHexagon
+public class FallableHexagon : MonoBehaviour
 {
-    internal bool IsFalling;
+    private Renderer renderer;
+    private Color originalColor;
 
-    public void Fall() { }
-    public void Reset() { }
+    public bool IsFalling;
+
+    private void Awake()
+    {
+        renderer = GetComponent<Renderer>();
+        originalColor = renderer.material.color;
+    }
+
+    public void Fall()
+    {
+        if (!IsFalling)
+        {
+            StartCoroutine(FallingCorountine());
+        }
+    }
+
+    public void Reset()
+    {
+        gameObject.SetActive(true);
+
+    }
+
+    private IEnumerator FallingCorountine()
+    {
+        IsFalling = true;
+        yield return new WaitForSeconds(1f - 0.15f);
+
+        float elapsed = 0f;
+        while (elapsed < 0.15f)
+        {
+            renderer.material.color = Color.Lerp(originalColor, Color.white, elapsed / 0.15f);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        renderer.material.color = Color.white;
+        gameObject.SetActive(false);
+        IsFalling = false;
+    }
 }

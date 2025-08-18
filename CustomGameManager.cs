@@ -23,16 +23,22 @@ public class CustomGameManager : GorillaGameManager
 
     private Dictionary<GameStateEnum, IGameState> GameHandlerDict;
 
-    public override void Awake()
-    {
-        base.Awake();
-        Instance = this;
-    }
-
+    // this is called when the gamemode serializer is made 
     public override void StartPlaying()
     {
         base.StartPlaying();
         Instance = this;
+        WorldManager.LoadWorld();
+    }
+
+    public override void StopPlaying()
+    {
+        base.StopPlaying();
+        WorldManager.UnloadWorld();
+    }
+
+    private void StartGame()
+    {
         Players = (
             from player in NetworkSystem.Instance.AllNetPlayers
             where player.ActorNumber != -1
@@ -42,18 +48,15 @@ public class CustomGameManager : GorillaGameManager
         .ToList();
     }
 
-    public override void StopPlaying()
+    public override void InfrequentUpdate()
     {
-        base.StopPlaying();
-    }
-
-    private void UpdateGameState()
-    {
-        if (!NetworkSystem.Instance.IsMasterClient)
-            return;
-
-        int alivePlayers = Players.Count(player => player.IsAlive);
-        CurrentStateHandler.
+        base.InfrequentUpdate();
+        if (NetworkSystem.Instance.IsMasterClient)
+        {
+            int alivePlayers = Players.Count(player => player.IsAlive);
+            int remainingTiles = 10;
+            CurrentState = CurrentStateHandler.CheckGameState(alivePlayers, remainingTiles);
+        }
     }
 
     public override void OnSerializeRead(object newData)
@@ -77,7 +80,7 @@ public class CustomGameManager : GorillaGameManager
 
     public override void AddFusionDataBehaviour(NetworkObject netObject)
     {
-        netObject.AddBehaviour<TagGameModeData>();
+        // netObject.AddBehaviour<TagGameModeData>();
     }
 
     public override GameModeType GameType()

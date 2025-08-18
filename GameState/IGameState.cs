@@ -2,5 +2,5 @@ namespace FallMonke.GameState;
 
 public interface IGameState
 {
-    public
+    public GameStateEnum CheckGameState(int remainingPlayers, int remainingTiles);
 }
