@@ -18,7 +18,7 @@ public class ParticipantManager : MonoBehaviour
     // the idea behind this is everything will happen twice, once on locally only for the player and another for the master client
     private void Update()
     {
-        if (!HasAuthority(out bool isMine)) return;
+        // if (!HasAuthority(out bool isMine)) return;
 
         if (!Info.IsAlive)
             return;
@@ -26,6 +26,7 @@ public class ParticipantManager : MonoBehaviour
         if (transform.position.y < ELIMINATION_HEIGHT)
         {
             // I died
+            CustomGameManager.Instance.Players.Remove(Info);
             return;
         }
 
