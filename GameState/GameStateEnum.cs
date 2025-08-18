@@ -1,6 +1,7 @@
 namespace FallMonke.GameState;
 
-public enum GameStateEnum {
+public enum GameStateEnum
+{
     GameOn,
     Finished
 }

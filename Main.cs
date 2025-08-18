@@ -14,6 +14,11 @@ public class Main : BaseUnityPlugin
     private void Awake()
     {
         instance = this;
+        Utilla.Events.GameInitialized += (sender, args) =>
+        {
+            ExitGames.Client.Photon.Hashtable properties = new() { { CustomGameManager.MOD_KEY, true } };
+            Photon.Pun.PhotonNetwork.SetPlayerCustomProperties(properties);
+        };
     }
 
     public static void Log(object message, LogLevel level = LogLevel.Info)
