@@ -1,8 +1,11 @@
 /*
 If a player joins late we should just ignore them, partipants are set when the game starts
+Should remove all references to PUN as it seems it will be removed in future updates, should rely on the Networking and NetworkSystems instead
 */
 
 using FallMonke.GameState;
+using FallMonke.NotificationSystem;
+using FallMonke.Networking;
 using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
@@ -17,18 +20,41 @@ public class CustomGameManager : GorillaGameManager
 
     public const string MOD_KEY = "fallmonke_prop";
 
+    public INotificationHandler NotificationHandler;
+    public IBroadcastController BroadcastController;
+
     public GameStateEnum CurrentState;
     public IGameState CurrentStateHandler;
-    public List<Participant> Players;
+    public Participant[] Players;
 
-    private Dictionary<GameStateEnum, IGameState> GameHandlerDict;
+    public override void Awake()
+    {
+        base.Awake();
+        fastJumpLimit = 10;
+        fastJumpMultiplier = 1;
+    }
 
     // this is called when the gamemode serializer is made 
     public override void StartPlaying()
     {
+        Main.Log("Created CustomGameManager!", BepInEx.Logging.LogLevel.Message);
         base.StartPlaying();
         Instance = this;
         WorldManager.LoadWorld();
+
+#if DEBUG
+        NotificationHandler = new NotificationSystem.DebugNotificationHandler();
+#else
+        // todo
+#endif
+        BroadcastController = new Networking.PUNBroadcastController();  // todo: ideally make this only happen if PUN is nolonger an option
+        BroadcastController.MakeModIdentifable();
+
+        if (NetworkSystem.Instance.IsMasterClient)
+        {
+            Main.Log("Looks like I'm the first one here, setting mode to search for players");
+            HandleStateSwitch(GameStateEnum.PendingStart);
+        }
     }
 
     public override void StopPlaying()
@@ -37,32 +63,44 @@ public class CustomGameManager : GorillaGameManager
         WorldManager.UnloadWorld();
     }
 
-    private void StartGame()
+    public void CreateParticipants()
     {
-        Players = (
-            from player in NetworkSystem.Instance.AllNetPlayers
-            where player.ActorNumber != -1
-            where PhotonNetwork.CurrentRoom.GetPlayer(player.ActorNumber).CustomProperties.ContainsKey(MOD_KEY)
-            select new Participant(player, FindPlayerVRRig(player))
-        )
-        .ToList();
+        Players = BroadcastController.CreateParticipants();
     }
 
+    // todo: must be called right after player is eliminated to ensure Players.Count != 0 never ever
     public override void InfrequentUpdate()
     {
         base.InfrequentUpdate();
         if (NetworkSystem.Instance.IsMasterClient)
         {
             int alivePlayers = Players.Count(player => player.IsAlive);
-            int remainingTiles = 10;
-            CurrentState = CurrentStateHandler.CheckGameState(alivePlayers, remainingTiles);
+            int remainingTiles = WorldManager.GetRemainingTiles();
+            HandleStateSwitch(CurrentStateHandler.CheckGameState(alivePlayers, remainingTiles));
+        }
+    }
+
+
+    public void HandleStateSwitch(GameStateEnum newState)
+    {
+        if (newState != CurrentState)
+        {
+            if (!StateHandlers.TryGetValue(newState, out IGameState handler))
+            {
+                Main.Log("Invalid state enum, maybe a cheater sending bad events as master?");
+                return;
+            }
+            CurrentState = newState;
+            Main.Log("New game state switched");
+            CurrentStateHandler = handler;
+            CurrentStateHandler.OnSwitchTo();
         }
     }
 
     public override void OnSerializeRead(object newData)
     {
         Main.Log("Got new state " + (int)newData);
-        CurrentState = (GameStateEnum)newData;
+        HandleStateSwitch((GameStateEnum)newData);
     }
 
     public override object OnSerializeWrite()
@@ -70,21 +108,34 @@ public class CustomGameManager : GorillaGameManager
         return CurrentState;
     }
 
-    public override void OnSerializeWrite(PhotonStream stream, PhotonMessageInfo info)
+    public override void OnSerializeWrite(PhotonStream stream, PhotonMessageInfo info) { }
+    public override void OnSerializeRead(PhotonStream stream, PhotonMessageInfo info) { }
+    public override void AddFusionDataBehaviour(NetworkObject netObject) {/* netObject.AddBehaviour<TagGameModeData>(); */}
+
+    public override void OnMasterClientSwitched(NetPlayer newMaster)
     {
+        base.OnMasterClientSwitched(newMaster);
+        if (newMaster.IsLocal)
+        {
+            Main.Log("Looks like Im incharge now");
+            // todo: add any logic to handle the game, but probably not nessacry since everything just checks if the local player is the master anyway 
+        }
     }
 
-    public override void OnSerializeRead(PhotonStream stream, PhotonMessageInfo info)
+    public override string GameModeName()
     {
-    }
-
-    public override void AddFusionDataBehaviour(NetworkObject netObject)
-    {
-        // netObject.AddBehaviour<TagGameModeData>();
+        return "FALLMONKE";
     }
 
     public override GameModeType GameType()
     {
-        return GameModeType.Custom;
+        return (GameModeType)1760;
     }
+
+    public readonly static Dictionary<GameStateEnum, IGameState> StateHandlers = new Dictionary<GameStateEnum, IGameState>()
+    {
+        { GameStateEnum.PendingStart, new GameState.PendingStart() },
+        { GameStateEnum.GameOn, new GameState.GameOn() },
+        { GameStateEnum.Finished, new GameState.Finished() },
+    };
 }

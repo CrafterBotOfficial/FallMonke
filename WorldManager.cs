@@ -22,14 +22,31 @@ public static class WorldManager
             layers[i] = GameObject.Instantiate<GameObject>(HexagonAsset).GetComponent<HexagonParent>();
             layers[i].transform.localPosition += Vector3.down * (i * LAYER_SPACING);
         }
-        GorillaLocomotion.GTPlayer.Instance.TeleportTo(new Vector3(210, 760, 195), Quaternion.identity, true); 
+        GorillaLocomotion.GTPlayer.Instance.TeleportTo(new Vector3(210, 760, 195), Quaternion.identity, true);
     }
 
-    public static void UnloadWorld() 
+    public static void UnloadWorld()
     {
         Main.Log("Removing world");
-        foreach (var layer in layers) {
+        foreach (var layer in layers)
+        {
             GameObject.Destroy(layer);
         }
+    }
+
+    public static int GetRemainingTiles()
+    {
+        int result = 0;
+        foreach (var layer in layers)
+        {
+            foreach (var tile in layer.Hexagons)
+            {
+                if (!tile.IsFalling)
+                {
+                    result++;
+                }
+            }
+        }
+        return result;
     }
 }

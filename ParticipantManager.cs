@@ -26,7 +26,8 @@ public class ParticipantManager : MonoBehaviour
         if (transform.position.y < ELIMINATION_HEIGHT)
         {
             // I died
-            CustomGameManager.Instance.Players.Remove(Info);
+            // CustomGameManager.Instance.Players.Remove(Info);
+            Info.IsAlive = false;
             return;
         }
 
@@ -34,16 +35,21 @@ public class ParticipantManager : MonoBehaviour
         if (TryRaycastToTerrain(out FallableHexagon hit) && !hit.IsFalling)
         {
             Main.Log("Yeeting platform");
-            if (isMine) ;/* do local stuff for affect */
-            else; // do global stuff
+            if (Player.IsLocal) hit.Fall();
+            else if (NetworkSystem.Instance.IsMasterClient)
+            {
+                Main.Log($"player {Player.NickName} just fell a platform", BepInEx.Logging.LogLevel.Debug);
+                hit.Fall();
+                CustomGameManager.Instance.BroadcastController.FallPlatform(hit);
+            }
         }
     }
 
-    private bool HasAuthority(out bool isLocal)
-    {
-        isLocal = Rig.isLocal;
-        return isLocal || NetworkSystem.Instance.IsMasterClient;
-    }
+    // private bool HasAuthority(out bool isLocal)
+    // {
+    //     isLocal = Rig.isLocal;
+    //     return isLocal || NetworkSystem.Instance.IsMasterClient;
+    // }
 
     private bool TryRaycastToTerrain(out FallableHexagon hitPlatform)
     {
@@ -65,5 +71,6 @@ public class ParticipantManager : MonoBehaviour
     private void OnDisable()
     {
         // handle player leave
+        Destroy(this);
     }
 }
