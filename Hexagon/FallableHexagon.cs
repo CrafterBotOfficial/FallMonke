@@ -8,7 +8,7 @@ public class FallableHexagon : MonoBehaviour
     private Renderer renderer;
     private Color originalColor;
 
-    public bool IsFalling;
+    public bool IsFalling; // also for if it has fallen
 
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class FallableHexagon : MonoBehaviour
     public void Reset()
     {
         gameObject.SetActive(true);
-
+        IsFalling = false;
     }
 
     private IEnumerator FallingCorountine()
