@@ -10,7 +10,7 @@ public class PendingStart : IGameState
     private bool countdown;
     private DateTime startGameTime;
 
-    public GameStateEnum CheckGameState(int remainingPlayers, int remainingTiles)
+    public GameStateEnum CheckGameState(GameStateDetails details)
     {
         if (CustomGameManager.instance is not CustomGameManager manager)
             return GameStateEnum.PendingStart;
@@ -23,19 +23,22 @@ public class PendingStart : IGameState
             startGameTime = DateTime.Now + GameOnCountdown;
         }
 
-        if (countdown && !CanStartGame(manager))
+        if (countdown)
         {
-            Main.Log("Game requirements no longer met, aborting timer");
-            manager.NotificationHandler.ShowNotification("Not enough players to start!");
-            countdown = false;
-            return GameStateEnum.PendingStart;
-        }
+            if (!CanStartGame(manager))
+            {
+                Main.Log("Game requirements no longer met, aborting timer");
+                manager.NotificationHandler.ShowNotification("Not enough players to start!");
+                countdown = false;
+                return GameStateEnum.PendingStart;
+            }
 
-        if (startGameTime <= DateTime.Now)
-        {
-            Main.Log("Game on!");
-            manager.NotificationHandler.ShowNotification("Game on!");
-            return GameStateEnum.GameOn;
+            if (startGameTime <= DateTime.Now)
+            {
+                Main.Log("Game on!");
+                manager.NotificationHandler.ShowNotification("Game on!");
+                return GameStateEnum.GameOn;
+            }
         }
 
         return GameStateEnum.PendingStart;

@@ -2,7 +2,7 @@ namespace FallMonke.GameState;
 
 public class Finished : IGameState
 {
-    public GameStateEnum CheckGameState(int remainingPlayers, int remainingTiles)
+    public GameStateEnum CheckGameState(GameStateDetails details)
     {
         return GameStateEnum.PendingStart;
     }

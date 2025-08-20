@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace FallMonke;
 
-public class AssetLoader : IDisposable
+public class AssetLoader
 {
-    private AssetBundle bundle;
+    public AssetBundle bundle;
 
     public AssetLoader(string resourcePath)
     {
@@ -15,15 +15,15 @@ public class AssetLoader : IDisposable
         bundle = AssetBundle.LoadFromStream(assetReaderStream);
     }
 
-    public async Task<UnityEngine.Object> LoadAsset(string name)
+    public string GetSceneName()
     {
-        var request = bundle.LoadAssetAsync(name);
-        await Task.Run(() => request.completed += _ => { });
-        return request.asset;
-    }
+        var paths = bundle.GetAllScenePaths();
+        if (paths.Length == 0 || paths[0].IsNullOrEmpty())
+        {
+            Main.Log("Failed to find scene in assetbundle", BepInEx.Logging.LogLevel.Fatal);
+            return string.Empty;
+        }
 
-    public void Dispose()
-    {
-        bundle.Unload(false);
+        return paths[0];
     }
 }

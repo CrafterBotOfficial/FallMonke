@@ -1,6 +1,8 @@
 // this is just testing code, once the scene is ready we will load it ontop of the normal world. It will contain all of the assets and decorations and hexagons
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro;
 using System.Linq;
 using FallMonke.Hexagon;
 
@@ -8,45 +10,52 @@ namespace FallMonke;
 
 public static class WorldManager
 {
-    public static GameObject HexagonAsset;
-
-    private const int LAYER_COUNT = 3;
-    private const float LAYER_SPACING = 25f;
-    private static HexagonParent[] layers;
+    public static AssetLoader AssetLoader;
+    private static HexagonParent hexagonParent;
 
     public static void LoadWorld()
     {
-        layers = new HexagonParent[LAYER_COUNT];
-        for (int i = 0; i < LAYER_COUNT; i++)
-        {
-            layers[i] = GameObject.Instantiate<GameObject>(HexagonAsset).GetComponent<HexagonParent>();
-            layers[i].transform.localPosition += Vector3.down * (i * LAYER_SPACING);
-        }
-        GorillaLocomotion.GTPlayer.Instance.TeleportTo(new Vector3(210, 760, 195), Quaternion.identity, true);
+        Main.Log("Loading game scene!", BepInEx.Logging.LogLevel.Message);
+
+        var sceneName = AssetLoader.GetSceneName();
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);
     }
 
     public static void UnloadWorld()
     {
         Main.Log("Removing world");
-        foreach (var layer in layers)
+        SceneManager.UnloadSceneAsync("Crafterbot");
+        Vector3 spawnLocation = new Vector3(210, 760, 195);  // <-------------- todo: set to stump
+        GorillaLocomotion.GTPlayer.Instance.TeleportTo(spawnLocation, Quaternion.identity, true);
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+        if (scene.name == "Crafterbot")
         {
-            GameObject.Destroy(layer);
+            hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
+            CustomGameManager.Instance.NotificationHandler.Setup();
+            Main.Log(hexagonParent.Hexagons.Length + " tiles");
+
+            GameObject.Find("FallMonke Buttons/Start/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+            GameObject.Find("FallMonke Buttons/Leave/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+
+            TeleportController.TeleportToLobby();
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
     }
 
     public static int GetRemainingTiles()
     {
         int result = 0;
-        foreach (var layer in layers)
-        {
-            foreach (var tile in layer.Hexagons)
+        if (hexagonParent != null)
+            foreach (var tile in hexagonParent.Hexagons)
             {
                 if (!tile.IsFalling)
                 {
                     result++;
                 }
             }
-        }
         return result;
     }
 }
