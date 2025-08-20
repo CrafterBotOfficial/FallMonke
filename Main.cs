@@ -15,6 +15,7 @@ public class Main : BaseUnityPlugin
     private void Awake()
     {
         instance = this;
+        HarmonyLib.Harmony.CreateAndPatchAll(typeof(Main));
         Utilla.Events.GameInitialized += async (sender, args) =>
         {
             if (NetworkSystem.Instance is not NetworkSystemPUN) // todo: add fusion support, assuming the game ever actually switches
@@ -29,7 +30,7 @@ public class Main : BaseUnityPlugin
     public void OnGUI()
     {
         GUILayout.BeginVertical();
-        if (GUILayout.Button("Join Room")) NetworkSystem.Instance.ConnectToRoom("CRAFTERBOT", RoomConfig.AnyPublicConfig() );
+        if (GUILayout.Button("Join Room")) NetworkSystem.Instance.ConnectToRoom("CRAFTERBOT", RoomConfig.AnyPublicConfig());
         if (GUILayout.Button("Force Load World")) WorldManager.LoadWorld();
         if (GUILayout.Button("Force UnLoad World")) WorldManager.UnloadWorld();
         if (NetworkSystem.Instance != null && NetworkSystem.Instance.InRoom) GUILayout.Label(NetworkSystem.Instance.GameModeString);
