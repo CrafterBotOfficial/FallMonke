@@ -2,7 +2,7 @@ namespace FallMonke.GameState;
 
 public enum GameStateEnum
 {
-    PendingStart,
+    PendingStart = 1,
     GameOn,
     Finished
 }

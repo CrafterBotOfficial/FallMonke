@@ -30,6 +30,7 @@ public class CustomGameManager : GorillaGameManager
     public override void Awake()
     {
         base.Awake();
+        Instance = this;
         fastJumpLimit = 10;
         fastJumpMultiplier = 1;
     }
@@ -39,7 +40,6 @@ public class CustomGameManager : GorillaGameManager
     {
         Main.Log("Created CustomGameManager!", BepInEx.Logging.LogLevel.Message);
         base.StartPlaying();
-        Instance = this;
         WorldManager.LoadWorld();
 
 #if DEBUG
@@ -74,7 +74,7 @@ public class CustomGameManager : GorillaGameManager
         base.InfrequentUpdate();
         if (NetworkSystem.Instance.IsMasterClient)
         {
-            int alivePlayers = Players.Count(player => player.IsAlive);
+            int alivePlayers = Players is null ? 0 : Players.Count(player => player.IsAlive);
             int remainingTiles = WorldManager.GetRemainingTiles();
             HandleStateSwitch(CurrentStateHandler.CheckGameState(alivePlayers, remainingTiles));
         }
@@ -124,6 +124,12 @@ public class CustomGameManager : GorillaGameManager
 
     public override string GameModeName()
     {
+        return "FALLMONKE";
+    }
+
+    public new string GameTypeName()
+    {
+        Main.Log("GameTypeName called", BepInEx.Logging.LogLevel.Message);
         return "FALLMONKE";
     }
 
