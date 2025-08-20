@@ -23,7 +23,7 @@ public class PendingStart : IGameState
             startGameTime = DateTime.Now + GameOnCountdown;
         }
 
-        if (!CanStartGame(manager))
+        if (countdown && !CanStartGame(manager))
         {
             Main.Log("Game requirements no longer met, aborting timer");
             manager.NotificationHandler.ShowNotification("Not enough players to start!");
