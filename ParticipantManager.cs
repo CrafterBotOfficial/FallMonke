@@ -11,10 +11,6 @@ public class ParticipantManager : MonoBehaviour
     public NetPlayer Player;
     public VRRig Rig;
 
-    private void Start()
-    {
-    }
-
     // the idea behind this is everything will happen twice, once on locally only for the player and another for the master client
     private void Update()
     {
@@ -26,8 +22,8 @@ public class ParticipantManager : MonoBehaviour
         if (transform.position.y < ELIMINATION_HEIGHT)
         {
             // I died
-            // CustomGameManager.Instance.Players.Remove(Info);
             Info.IsAlive = false;
+            if (Info.Player.IsLocal) TeleportController.TeleportToLobby();
             return;
         }
 
@@ -60,7 +56,7 @@ public class ParticipantManager : MonoBehaviour
         Ray ray = new Ray(Rig.transform.position, direction);
         if (Physics.SphereCast(ray, width, out RaycastHit hit, distance)) // todo: add layer for hexagons
         {
-            hitPlatform = hit.collider.gameObject.GetComponent<FallableHexagon>();
+            hitPlatform = hit.collider.gameObject.GetComponentInChildren<FallableHexagon>();
             return true;
         }
 

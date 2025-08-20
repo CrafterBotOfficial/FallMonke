@@ -25,7 +25,9 @@ public class CustomGameManager : GorillaGameManager
 
     public GameStateEnum CurrentState;
     public IGameState CurrentStateHandler;
+
     public Participant[] Players;
+    public Participant LocalPlayer;
 
     public override void Awake()
     {
@@ -38,8 +40,8 @@ public class CustomGameManager : GorillaGameManager
     // this is called when the gamemode serializer is made 
     public override void StartPlaying()
     {
-        Main.Log("Created CustomGameManager!", BepInEx.Logging.LogLevel.Message);
         base.StartPlaying();
+        Main.Log("CustomGameManager starting!", BepInEx.Logging.LogLevel.Message);
         WorldManager.LoadWorld();
 
 #if DEBUG
@@ -47,13 +49,15 @@ public class CustomGameManager : GorillaGameManager
 #else
         // todo
 #endif
+
         BroadcastController = new Networking.PUNBroadcastController();  // todo: ideally make this only happen if PUN is nolonger an option
         BroadcastController.MakeModIdentifable();
 
         if (NetworkSystem.Instance.IsMasterClient)
         {
             Main.Log("Looks like I'm the first one here, setting mode to search for players");
-            HandleStateSwitch(GameStateEnum.PendingStart);
+            CurrentState = GameStateEnum.PendingStart;
+            CurrentStateHandler = StateHandlers[CurrentState];
         }
     }
 
@@ -66,6 +70,7 @@ public class CustomGameManager : GorillaGameManager
     public void CreateParticipants()
     {
         Players = BroadcastController.CreateParticipants();
+        LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
     // todo: must be called right after player is eliminated to ensure Players.Count != 0 never ever
@@ -74,12 +79,14 @@ public class CustomGameManager : GorillaGameManager
         base.InfrequentUpdate();
         if (NetworkSystem.Instance.IsMasterClient)
         {
-            int alivePlayers = Players is null ? 0 : Players.Count(player => player.IsAlive);
-            int remainingTiles = WorldManager.GetRemainingTiles();
-            HandleStateSwitch(CurrentStateHandler.CheckGameState(alivePlayers, remainingTiles));
+            var details = new GameStateDetails
+            {
+                RemainingPlayers = Players is null ? -1 : Players.Count(player => player.IsAlive),
+                RemainingTiles = WorldManager.GetRemainingTiles()
+            };
+            HandleStateSwitch(CurrentStateHandler.CheckGameState(details));
         }
     }
-
 
     public void HandleStateSwitch(GameStateEnum newState)
     {
@@ -91,7 +98,7 @@ public class CustomGameManager : GorillaGameManager
                 return;
             }
             CurrentState = newState;
-            Main.Log("New game state switched");
+            Main.Log("State switched to " + newState.ToString());
             CurrentStateHandler = handler;
             CurrentStateHandler.OnSwitchTo();
         }
@@ -144,4 +151,10 @@ public class CustomGameManager : GorillaGameManager
         { GameStateEnum.GameOn, new GameState.GameOn() },
         { GameStateEnum.Finished, new GameState.Finished() },
     };
+}
+
+public struct GameStateDetails
+{
+    public int RemainingPlayers;
+    public int RemainingTiles;
 }
