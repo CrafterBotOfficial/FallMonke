@@ -45,7 +45,7 @@ public static class WorldManager
             GameObject.Find("FallMonke Buttons/Leave/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
             try { GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>(); } catch { }
 
-            EliminationHeight = GameObject.Find("/Water").transform.position.y;
+            EliminationHeight = GameObject.Find("/WaterVRview").transform.position.y;
 
             TeleportController.TeleportToLobby();
             SceneManager.sceneLoaded -= OnSceneLoaded;

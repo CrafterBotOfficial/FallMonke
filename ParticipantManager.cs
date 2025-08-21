@@ -6,7 +6,6 @@ namespace FallMonke;
 public class ParticipantManager : MonoBehaviour
 {
     public Participant Info;
-    public NetPlayer Player;
     public VRRig Rig;
 
     // the idea behind this is everything will happen twice, once on locally only for the player and another for the master client
@@ -31,7 +30,8 @@ public class ParticipantManager : MonoBehaviour
             return;
         }
 
-        if (Player.IsLocal && TryRaycastToTerrain(out FallableHexagon hit) && !hit.IsFalling)
+        // change: Master no longer manages tiles, each player does then tells everyone else when fell
+        if (Info.Player.IsLocal && TryRaycastToTerrain(out FallableHexagon hit) && !hit.IsFalling)
         {
             Main.Log("Yeeting platform");
             hit.Fall();
@@ -63,6 +63,7 @@ public class ParticipantManager : MonoBehaviour
     private void OnDisable()
     {
         // handle player leave
+        Info.IsAlive = false;
         Destroy(this);
     }
 }
