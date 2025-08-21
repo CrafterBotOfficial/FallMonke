@@ -18,14 +18,16 @@ public class Finished : IGameState
 
     public void OnSwitchTo()
     {
-        CustomGameManager.Instance.NotificationHandler.ShowNotification("Getting ready for next game...");
+        var manager = (CustomGameManager)CustomGameManager.instance;
+        manager.NotificationHandler.ShowNotification("Getting ready for next game...");
         switchTime = DateTime.Now + TimeSpan.FromSeconds(5); // a janky way to ensure all clients switch to finished so they cleanup. Should fix layer
 
-        foreach (var player in CustomGameManager.Instance.Players)
+        foreach (var player in manager.Players)
         {
             UnityEngine.Object.Destroy(player.Manager);
         }
 
         WorldManager.ResetTiles();
+        TeleportController.TeleportToLobby();
     }
 }

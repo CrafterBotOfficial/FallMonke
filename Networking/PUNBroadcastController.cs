@@ -18,11 +18,32 @@ public class PUNBroadcastController : IBroadcastController
     {
         int tileIndex = WorldManager.GetTileIndex(tile);
 
-        var targets = CustomGameManager.Instance.ParticipantActorNumbers;
+        var targets = ((CustomGameManager)CustomGameManager.instance).ParticipantActorNumbers;
         var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others, /* TargetActors = targets */ };
         PhotonNetwork.RaiseEvent((byte)EventCodesEnum.FALL_TILE,
                                  tileIndex,
                                  raiseEventOptions,
+                                 SendOptions.SendReliable);
+    }
+
+    public void SendRandomSeed(int random)
+    {
+        if (!NetworkSystem.Instance.IsMasterClient) return;
+        PhotonNetwork.RaiseEvent((byte)EventCodesEnum.SPAWN_PLAYER_ON_RANDOM_TILE,
+                                 random,
+                                 new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                                 SendOptions.SendReliable);
+    }
+
+    /// <summary>
+    /// Also shows a notification locally, along as the player is master
+    /// </summary>
+    public void ShowNotification(string message)
+    {
+        if (!NetworkSystem.Instance.IsMasterClient || message.Length > EventHandlers.ShowNotificationEventHandler.MaxMessageLength) return;
+        PhotonNetwork.RaiseEvent((byte)EventCodesEnum.SHOW_NOTIFICATION,
+                                 message,
+                                 new RaiseEventOptions { Receivers = ReceiverGroup.All },
                                  SendOptions.SendReliable);
     }
 
@@ -40,7 +61,7 @@ public class PUNBroadcastController : IBroadcastController
     private Participant CreateParticipant(Player player)
     {
         var participant = new Participant(player);
-        var rig = CustomGameManager.Instance.FindPlayerVRRig(player);
+        var rig = ((CustomGameManager)CustomGameManager.instance).FindPlayerVRRig(player);
         participant.Manager = rig.AddComponent<ParticipantManager>();
         participant.Manager.Rig = rig;
         participant.Manager.Info = participant;

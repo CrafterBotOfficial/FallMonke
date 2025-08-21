@@ -6,18 +6,18 @@ public class GameOn : IGameState
 {
     public GameStateEnum CheckGameState(GameStateDetails details)
     {
+        var manager = (CustomGameManager)CustomGameManager.instance;
         if (details.RemainingPlayers == 1)
         {
-            var manager = CustomGameManager.Instance;
-            manager.NotificationHandler.ShowNotification("Game over!");
-            manager.NotificationHandler.ShowNotification(GetWinner().Player.SanitizedNickName + " wins!");
+            string winText = $"{GetWinner().Player.SanitizedNickName} wins!"
+            manager.BroadcastController.ShowNotification(winText);
             return GameStateEnum.Finished;
         }
 
         if (details.RemainingPlayers < 1)
         {
             Main.Log("Not enough players to continue the game.");
-            CustomGameManager.Instance.NotificationHandler.ShowNotification("Game over!");
+            manager.BroadcastController.ShowNotification("Game over!");
             return GameStateEnum.Finished;
         }
 
@@ -27,14 +27,21 @@ public class GameOn : IGameState
     public void OnSwitchTo()
     {
         Main.Log("GameOn: Im getting called, things are starting up");
-        CustomGameManager.Instance.CreateParticipants();
-        Main.Log($"{CustomGameManager.Instance.Players.Length}/{NetworkSystem.Instance.AllNetPlayers.Length} players Participanting");
-        FallMonke.CustomGameManager.Instance.NotificationHandler.ShowNotification("Game on!");
-        TeleportController.TeleportToGame();
+        var manager = (CustomGameManager)CustomGameManager.instance;
+        manager.CreateParticipants();
+        Main.Log($"{manager.Players.Length}/{NetworkSystem.Instance.AllNetPlayers.Length} players Participanting");
+        manager.NotificationHandler.ShowNotification("Game on!");
+
+        if (NetworkSystem.Instance.IsMasterClient)
+        {
+            Main.Log("Looks like its up to me to decide where everyone has to go.");
+            int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            manager.BroadcastController.SendRandomSeed(seed);
+        }
     }
 
     private Participant GetWinner()
     {
-        return CustomGameManager.Instance.Players.First(x => x.IsAlive);
+        return ((CustomGameManager)CustomGameManager.instance).Players.First(x => x.IsAlive);
     }
 }
