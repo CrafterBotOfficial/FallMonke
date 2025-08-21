@@ -1,9 +1,7 @@
-using System;
 using System.Linq;
 using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
-using FallMonke.Hexagon;
 
 namespace FallMonke.Networking;
 
@@ -33,7 +31,7 @@ public class PUNBroadcastController : IBroadcastController
         var query = (
             from player in PhotonNetwork.PlayerList
             where player.ActorNumber != -1
-            where PhotonNetwork.CurrentRoom.GetPlayer(player.ActorNumber).CustomProperties.ContainsKey(CustomGameManager.MOD_KEY)
+            where player.CustomProperties.ContainsKey(CustomGameManager.MOD_KEY)
             select CreateParticipant(player)
         );
         return query.ToArray();

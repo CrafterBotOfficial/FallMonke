@@ -12,8 +12,7 @@ public class PendingStart : IGameState
 
     public GameStateEnum CheckGameState(GameStateDetails details)
     {
-        if (CustomGameManager.instance is not CustomGameManager manager)
-            return GameStateEnum.PendingStart;
+        var manager = CustomGameManager.Instance;
 
         if (!countdown && CanStartGame(manager))
         {
@@ -44,7 +43,10 @@ public class PendingStart : IGameState
         return GameStateEnum.PendingStart;
     }
 
-    public void OnSwitchTo() { }
+    public void OnSwitchTo()
+    {
+        countdown = false;
+    }
 
     public bool CanStartGame(CustomGameManager manager)
     {

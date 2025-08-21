@@ -1,3 +1,4 @@
+using System.Linq;
 
 namespace FallMonke.GameState;
 
@@ -9,7 +10,7 @@ public class GameOn : IGameState
         {
             var manager = CustomGameManager.Instance;
             manager.NotificationHandler.ShowNotification("Game over!");
-            manager.NotificationHandler.ShowNotification(manager.Players[0].Player.SanitizedNickName + " wins!");
+            manager.NotificationHandler.ShowNotification(GetWinner().Player.SanitizedNickName + " wins!");
             return GameStateEnum.Finished;
         }
 
@@ -30,5 +31,10 @@ public class GameOn : IGameState
         Main.Log($"{CustomGameManager.Instance.Players.Length}/{NetworkSystem.Instance.AllNetPlayers.Length} players Participanting");
         FallMonke.CustomGameManager.Instance.NotificationHandler.ShowNotification("Game on!");
         TeleportController.TeleportToGame();
+    }
+
+    private Participant GetWinner()
+    {
+        return CustomGameManager.Instance.Players.First(x => x.IsAlive);
     }
 }

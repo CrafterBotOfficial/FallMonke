@@ -29,6 +29,8 @@ public class DebugNotificationHandler : INotificationHandler
 
     public void ShowNotification(string text)
     {
+        Main.Log("[DEBUG - Notificationhandler]: " + text);
+
         if (textObject == null)
         {
             Main.Log("No debug text to notify to", BepInEx.Logging.LogLevel.Warning);

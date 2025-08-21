@@ -15,7 +15,8 @@ public static class TeleportController
             return;
 
         int index = manager.Players.IndexOfRef(manager.LocalPlayer);
-        Transform spawnPoint = GameObject.Find("/Spawnpoints/").transform.GetChild(index);
+        Main.Log($"Teleporting to platform: {index}", BepInEx.Logging.LogLevel.Message);
+        Transform spawnPoint = GameObject.Find("/SpawnPoints/").transform.GetChild(index);
 
         TeleportLocalPlayer(spawnPoint.position);
     }
