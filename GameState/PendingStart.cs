@@ -5,7 +5,7 @@ namespace FallMonke.GameState;
 public class PendingStart : IGameState
 {
     private const int RequiredPlayerCount = 2;
-    private static readonly TimeSpan GameOnCountdown = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan GameOnCountdown = TimeSpan.FromMinutes(.5f);
 
     private bool countdown;
     private DateTime startGameTime;

@@ -36,8 +36,10 @@ public class CustomGameManager : GorillaGameManager
     {
         base.Awake();
         Instance = this;
-        fastJumpLimit = 10;
-        fastJumpMultiplier = 1;
+        slowJumpLimit = 6.5f;
+        fastJumpLimit = 8.5f;
+        slowJumpMultiplier = 1.1f;
+        fastJumpMultiplier = 1.3f;
     }
 
     // this is called when the gamemode serializer is made 

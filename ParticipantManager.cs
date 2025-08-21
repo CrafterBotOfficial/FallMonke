@@ -9,7 +9,7 @@ public class ParticipantManager : MonoBehaviour
     public VRRig Rig;
 
     // the idea behind this is everything will happen twice, once on locally only for the player and another for the master client
-    private void Update()
+    private async void Update()
     {
         // if (!HasAuthority(out bool isMine)) return;
 
@@ -23,6 +23,7 @@ public class ParticipantManager : MonoBehaviour
             var manager = CustomGameManager.Instance; // https://www.youtube.com/shorts/pFB5F-fS_Y4
             if (Info.Player.IsLocal)
             {
+                await System.Threading.Tasks.Task.Delay(2500);
                 manager.NotificationHandler.ShowNotification("You have been eliminated");
                 TeleportController.TeleportToLobby();
             }
@@ -46,11 +47,12 @@ public class ParticipantManager : MonoBehaviour
     // todo: we should also raycast from both hands down, otherwise players can cheat
     private bool TryRaycastToTerrain(out FallableHexagon hitPlatform)
     {
-        const float distance = .5f;
-        const float width = .02f;
+        Vector3 origin = GorillaLocomotion.GTPlayer.Instance.bodyCollider.bounds.center + Vector3.up * 0.1f;
+        float distance = 0.5f;
 
-        Ray ray = new Ray(Rig.transform.position, Vector3.down);
-        if (Physics.SphereCast(ray, width, out RaycastHit hit, distance) && hit.collider.GetComponentInChildren<FallableHexagon>() is FallableHexagon tile)
+        bool hitSomething = Physics.Raycast(origin, Vector3.down, out RaycastHit hit, distance, LayerMask.GetMask("Gorilla Object"));
+
+        if (hitSomething && hit.transform.gameObject.TryGetComponent(out FallableHexagon tile))
         {
             hitPlatform = tile;
             return true;

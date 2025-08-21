@@ -27,6 +27,8 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
             if (photonEvent.Code != (byte)EventCodesEnum.FALL_TILE)
                 return;
 
+            Main.Log("got event");
+            
             if (CustomGameManager.Instance is not CustomGameManager manager)
                 return;
 
@@ -40,7 +42,7 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
             }
 
             NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
-            if (player == null)
+            if (player == null || player.IsLocal)
             {
                 Main.Log("Bad event", BepInEx.Logging.LogLevel.Warning);
                 return;
