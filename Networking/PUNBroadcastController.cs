@@ -19,7 +19,7 @@ public class PUNBroadcastController : IBroadcastController
         int tileIndex = WorldManager.GetTileIndex(tile);
 
         var targets = CustomGameManager.Instance.ParticipantActorNumbers;
-        var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others, TargetActors = targets };
+        var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others, /* TargetActors = targets */ };
         PhotonNetwork.RaiseEvent((byte)EventCodesEnum.FALL_TILE,
                                  tileIndex,
                                  raiseEventOptions,
