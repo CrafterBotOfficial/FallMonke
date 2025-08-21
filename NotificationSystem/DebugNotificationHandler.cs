@@ -13,7 +13,10 @@ public class DebugNotificationHandler : INotificationHandler
 
     public void Setup()
     {
+        GameObject.FindObjectsByType<TextMeshPro>(FindObjectsSortMode.None).Where(x => x.gameObject.name == "TextHeader").FirstOrDefault().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+
         textObject = GameObject.FindObjectsByType<TextMeshPro>(FindObjectsSortMode.None).Where(x => x.gameObject.name == "DebugText").FirstOrDefault();
+        textObject.font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
         textObject.text = string.Empty;
     }
 
