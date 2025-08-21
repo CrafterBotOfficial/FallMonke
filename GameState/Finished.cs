@@ -8,6 +8,10 @@ public class Finished : IGameState
     }
     public void OnSwitchTo()
     {
+        foreach (var player in CustomGameManager.Instance.Players)
+        {
+            UnityEngine.Object.Destroy(player.Manager);
+        }
         CustomGameManager.Instance.NotificationHandler.ShowNotification("Getting ready for next game...");
     }
 }

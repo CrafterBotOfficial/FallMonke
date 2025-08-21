@@ -5,8 +5,6 @@ namespace FallMonke;
 
 public class ParticipantManager : MonoBehaviour
 {
-    public const float ELIMINATION_HEIGHT = 100;
-
     public Participant Info;
     public NetPlayer Player;
     public VRRig Rig;
@@ -19,14 +17,19 @@ public class ParticipantManager : MonoBehaviour
         if (!Info.IsAlive)
             return;
 
-        if (transform.position.y < ELIMINATION_HEIGHT)
+        if (transform.position.y < WorldManager.EliminationHeight)
         {
             // I died
             Info.IsAlive = false;
-            if (Info.Player.IsLocal) TeleportController.TeleportToLobby();
+            var manager = CustomGameManager.Instance; // https://www.youtube.com/shorts/pFB5F-fS_Y4
+            if (Info.Player.IsLocal)
+            {
+                manager.NotificationHandler.ShowNotification("You have been eliminated");
+                TeleportController.TeleportToLobby();
+            }
+            else manager.NotificationHandler.ShowNotification($"{Info.Player.SanitizedNickName} has been eliminated");
             return;
         }
-
 
         if (TryRaycastToTerrain(out FallableHexagon hit) && !hit.IsFalling)
         {
@@ -41,22 +44,16 @@ public class ParticipantManager : MonoBehaviour
         }
     }
 
-    // private bool HasAuthority(out bool isLocal)
-    // {
-    //     isLocal = Rig.isLocal;
-    //     return isLocal || NetworkSystem.Instance.IsMasterClient;
-    // }
-
+    // todo: we should also raycast from both hands down, otherwise players can cheat
     private bool TryRaycastToTerrain(out FallableHexagon hitPlatform)
     {
-        var direction = -Rig.transform.up;
         const float distance = .5f;
         const float width = .02f;
 
-        Ray ray = new Ray(Rig.transform.position, direction);
-        if (Physics.SphereCast(ray, width, out RaycastHit hit, distance)) // todo: add layer for hexagons
+        Ray ray = new Ray(Rig.transform.position, Vector3.down);
+        if (Physics.SphereCast(ray, width, out RaycastHit hit, distance) && hit.collider.GetComponentInChildren<FallableHexagon>() is FallableHexagon tile)
         {
-            hitPlatform = hit.collider.gameObject.GetComponentInChildren<FallableHexagon>();
+            hitPlatform = tile;
             return true;
         }
 
