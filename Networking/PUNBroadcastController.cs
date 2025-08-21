@@ -47,6 +47,14 @@ public class PUNBroadcastController : IBroadcastController
                                  SendOptions.SendReliable);
     }
 
+    public void RequestStartGame()
+    {
+        PhotonNetwork.RaiseEvent((byte)EventCodesEnum.REQUEST_TO_START_GAME,
+                                 true,
+                                 new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                                 SendOptions.SendReliable);
+    }
+
     public Participant[] CreateParticipants()
     {
         var query = (

@@ -30,6 +30,11 @@ public static class TeleportController
         TeleportLocalPlayer(mySpawnpoint);
     }
 
+    public static void TeleportToStump() {
+        Vector3 position = new Vector3(-67, 11, -82); // todo: make more precise, should be perfect center
+        TeleportLocalPlayer(position);
+    }
+
     private static void TeleportLocalPlayer(string anchor)
     {
         var anchorObject = GameObject.Find(anchor);

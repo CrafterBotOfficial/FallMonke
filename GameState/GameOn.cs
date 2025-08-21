@@ -9,7 +9,7 @@ public class GameOn : IGameState
         var manager = (CustomGameManager)CustomGameManager.instance;
         if (details.RemainingPlayers == 1)
         {
-            string winText = $"{GetWinner().Player.SanitizedNickName} wins!"
+            string winText = $"{GetWinner().Player.SanitizedNickName} wins!";
             manager.BroadcastController.ShowNotification(winText);
             return GameStateEnum.Finished;
         }

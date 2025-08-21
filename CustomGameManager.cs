@@ -1,6 +1,8 @@
 /*
 If a player joins late we should just ignore them, partipants are set when the game starts
 Should remove all references to PUN as it seems it will be removed in future updates, should rely on the Networking and NetworkSystems instead
+
+fyi: If someone doesn't have the mod it won't break anything, it just wont create the gamemode stuff on there client and will log warnings about the gamemanager being null. So no risk of breaking other clients or reports
 */
 
 using FallMonke.GameState;
@@ -28,6 +30,8 @@ public class CustomGameManager : GorillaGameManager
     public int[] ParticipantActorNumbers;
     public Participant LocalPlayer;
 
+    public bool StartButtonPressed;
+
     public override void Awake()
     {
         base.Awake();
@@ -43,6 +47,8 @@ public class CustomGameManager : GorillaGameManager
         base.StartPlaying();
         Main.Log("CustomGameManager starting!", BepInEx.Logging.LogLevel.Message);
         WorldManager.LoadWorld();
+
+        StartButtonPressed = false;
 
 #if DEBUG
         NotificationHandler = new NotificationSystem.DebugNotificationHandler();
@@ -118,6 +124,7 @@ public class CustomGameManager : GorillaGameManager
             return;
         }
         stream.SendNext(CurrentState);
+        // stream.SendNext(StartButtonPressed);
     }
 
     public override void OnSerializeRead(PhotonStream stream, PhotonMessageInfo info)
@@ -130,6 +137,8 @@ public class CustomGameManager : GorillaGameManager
             Main.Log("Got new state " + state);
             HandleStateSwitch((GameStateEnum)state);
         }
+
+        // StartButtonPressed = (bool)stream.ReceiveNext(); // incase player joins lobby late, but probably overkill since its unlikely they will become the master then
     }
 
     public override void AddFusionDataBehaviour(NetworkObject netObject) {/* netObject.AddBehaviour<TagGameModeData>(); */}

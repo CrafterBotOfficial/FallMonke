@@ -28,8 +28,6 @@ public static class WorldManager
     {
         Main.Log("Removing world");
         SceneManager.UnloadSceneAsync("Crafterbot");
-        Vector3 spawnLocation = new Vector3(210, 760, 195);  // <-------------- todo: set to stump
-        GorillaLocomotion.GTPlayer.Instance.TeleportTo(spawnLocation, Quaternion.identity, true);
     }
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -41,8 +39,7 @@ public static class WorldManager
             ((CustomGameManager)CustomGameManager.instance).NotificationHandler.Setup();
             Main.Log(hexagonParent.Hexagons.Length + " tiles");
 
-            GameObject.Find("FallMonke Buttons/Start/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
-            GameObject.Find("FallMonke Buttons/Leave/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+            SetupButtons();
             try { GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>(); } catch { }
 
             EliminationHeight = GameObject.Find("/WaterVRview").transform.position.y;
@@ -50,6 +47,18 @@ public static class WorldManager
             TeleportController.TeleportToLobby();
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
+    }
+
+    private static void SetupButtons()
+    {
+        var startGameButton = GameObject.Find("FallMonke Buttons/Start");
+        var leaveButton = GameObject.Find("FallMonke Buttons/Leave");
+
+        startGameButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+        leaveButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+
+        startGameButton.AddComponent<UI.Buttons.StartGameButton>();
+        leaveButton.AddComponent<UI.Buttons.LeaveGameButton>();
     }
 
     public static FallableHexagon GetTileByIndex(int index)
