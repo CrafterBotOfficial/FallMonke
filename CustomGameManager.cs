@@ -27,6 +27,7 @@ public class CustomGameManager : GorillaGameManager
     public IGameState CurrentStateHandler;
 
     public Participant[] Players;
+    public int[] ParticipantActorNumbers;
     public Participant LocalPlayer;
 
     public override void Awake()
@@ -65,11 +66,13 @@ public class CustomGameManager : GorillaGameManager
     {
         base.StopPlaying();
         WorldManager.UnloadWorld();
+        BroadcastController.Cleanup();
     }
 
     public void CreateParticipants()
     {
         Players = BroadcastController.CreateParticipants();
+        ParticipantActorNumbers = CustomGameManager.Instance.Players.Select(player => player.Player.ActorNumber).ToArray();
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
@@ -104,19 +107,31 @@ public class CustomGameManager : GorillaGameManager
         }
     }
 
-    public override void OnSerializeRead(object newData)
+    public override void OnSerializeRead(object newData) { Main.Log("Got new state " + (int)newData); HandleStateSwitch((GameStateEnum)newData); }
+    public override object OnSerializeWrite() { return CurrentState; }
+
+    public override void OnSerializeWrite(PhotonStream stream, PhotonMessageInfo info)
     {
-        Main.Log("Got new state " + (int)newData);
-        HandleStateSwitch((GameStateEnum)newData);
+        if (!NetworkSystem.Instance.IsMasterClient)
+        {
+            Main.Log("Why do I have authority? Maybe I am a cheater?", BepInEx.Logging.LogLevel.Warning);
+            return;
+        }
+        stream.SendNext(CurrentState);
     }
 
-    public override object OnSerializeWrite()
+    public override void OnSerializeRead(PhotonStream stream, PhotonMessageInfo info)
     {
-        return CurrentState;
+        if (NetworkSystem.Instance.IsMasterClient) return;
+
+        int state = (int)stream.ReceiveNext();
+        if (System.Enum.IsDefined(typeof(GameStateEnum), state))
+        {
+            Main.Log("Got new state " + state);
+            HandleStateSwitch((GameStateEnum)state);
+        }
     }
 
-    public override void OnSerializeWrite(PhotonStream stream, PhotonMessageInfo info) { }
-    public override void OnSerializeRead(PhotonStream stream, PhotonMessageInfo info) { }
     public override void AddFusionDataBehaviour(NetworkObject netObject) {/* netObject.AddBehaviour<TagGameModeData>(); */}
 
     public override void OnMasterClientSwitched(NetPlayer newMaster)
