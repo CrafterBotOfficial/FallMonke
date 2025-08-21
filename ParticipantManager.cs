@@ -31,16 +31,15 @@ public class ParticipantManager : MonoBehaviour
             return;
         }
 
-        if (TryRaycastToTerrain(out FallableHexagon hit) && !hit.IsFalling)
+        if (Player.IsLocal && TryRaycastToTerrain(out FallableHexagon hit) && !hit.IsFalling)
         {
             Main.Log("Yeeting platform");
-            if (Player.IsLocal) hit.Fall();
-            else if (NetworkSystem.Instance.IsMasterClient)
-            {
-                Main.Log($"player {Player.NickName} just fell a platform", BepInEx.Logging.LogLevel.Debug);
-                hit.Fall();
-                CustomGameManager.Instance.BroadcastController.FallPlatform(hit);
-            }
+            hit.Fall();
+            CustomGameManager.Instance.BroadcastController.FallPlatform(hit);
+            // else if (NetworkSystem.Instance.IsMasterClient)
+            // {
+            //     Main.Log($"player {Player.NickName} just fell a platform", BepInEx.Logging.LogLevel.Debug);
+            // }
         }
     }
 

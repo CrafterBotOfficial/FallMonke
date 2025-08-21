@@ -1,20 +1,27 @@
+using System;
 using System.Linq;
 using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
+using FallMonke.Hexagon;
 
 namespace FallMonke.Networking;
 
 public class PUNBroadcastController : IBroadcastController
 {
+    private PUNEventHandler eventHandler;
+
+    public void SetupEventHandler()
+    {
+        eventHandler = new PUNEventHandler();
+    }
+
     public void FallPlatform(Hexagon.FallableHexagon tile)
     {
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-
         int tileIndex = WorldManager.GetTileIndex(tile);
 
-        var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
+        var targets = CustomGameManager.Instance.ParticipantActorNumbers;
+        var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others, TargetActors = targets };
         PhotonNetwork.RaiseEvent((byte)EventCodesEnum.FALL_TILE,
                                  tileIndex,
                                  raiseEventOptions,
@@ -46,5 +53,10 @@ public class PUNBroadcastController : IBroadcastController
     {
         ExitGames.Client.Photon.Hashtable properties = new() { { CustomGameManager.MOD_KEY, true } };
         Photon.Pun.PhotonNetwork.SetPlayerCustomProperties(properties);
+    }
+
+    public void Cleanup()
+    {
+        eventHandler.Dispose();
     }
 }

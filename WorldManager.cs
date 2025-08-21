@@ -43,13 +43,18 @@ public static class WorldManager
 
             GameObject.Find("FallMonke Buttons/Start/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
             GameObject.Find("FallMonke Buttons/Leave/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
-            GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>();
+            try { GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>(); } catch { }
 
             EliminationHeight = GameObject.Find("/Water").transform.position.y;
 
             TeleportController.TeleportToLobby();
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
+    }
+
+    public static FallableHexagon GetTileByIndex(int index)
+    {
+        return hexagonParent.Hexagons[index];
     }
 
     public static int GetTileIndex(FallableHexagon hex)
