@@ -12,7 +12,7 @@ public class PUNBroadcastController : IBroadcastController
         if (!PhotonNetwork.IsMasterClient)
             return;
 
-        int tileIndex = 0;
+        int tileIndex = WorldManager.GetTileIndex(tile);
 
         var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent((byte)EventCodesEnum.FALL_TILE,

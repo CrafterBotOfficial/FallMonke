@@ -22,16 +22,17 @@ public static class TeleportController
 
     private static void TeleportLocalPlayer(string anchor)
     {
-        var gameObject = GameObject.Find(anchor);
-        if (gameObject == null) {
+        var anchorObject = GameObject.Find(anchor);
+        if (anchorObject == null)
+        {
             Main.Log("Failed to find tp anchor", BepInEx.Logging.LogLevel.Fatal);
             return;
         }
-        TeleportLocalPlayer(gameObject.transform.position);
+        TeleportLocalPlayer(anchorObject.transform.position);
     }
 
     private static void TeleportLocalPlayer(Vector3 position)
     {
-        GorillaLocomotion.GTPlayer.Instance.TeleportTo(position, Quaternion.identity, true);
+        GorillaLocomotion.GTPlayer.Instance.TeleportTo(position, Quaternion.identity, false);
     }
 }
