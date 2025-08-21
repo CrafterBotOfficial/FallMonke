@@ -1,8 +1,6 @@
 /*
 If a player joins late we should just ignore them, partipants are set when the game starts
 Should remove all references to PUN as it seems it will be removed in future updates, should rely on the Networking and NetworkSystems instead
-
-todo: add logic to handle when participant leaves 
 */
 
 using FallMonke.GameState;
@@ -57,6 +55,7 @@ public class CustomGameManager : GorillaGameManager
 
         BroadcastController = new Networking.PUNBroadcastController();  // todo: ideally make this only happen if PUN is nolonger an option
         BroadcastController.MakeModIdentifable();
+        BroadcastController.SetupEventHandler();
 
         if (NetworkSystem.Instance.IsMasterClient)
         {
