@@ -12,7 +12,7 @@ public class PendingStart : IGameState
 
     public GameStateEnum CheckGameState(GameStateDetails details)
     {
-        var manager = CustomGameManager.Instance;
+        var manager = (CustomGameManager)CustomGameManager.instance;
 
         if (!countdown && CanStartGame(manager))
         {

@@ -1,13 +1,21 @@
 using System;
-using UnityEngine;
+using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
+using FallMonke.Networking.EventHandlers;
 
 namespace FallMonke.Networking;
 
 public class PUNEventHandler : IOnEventCallback, IDisposable
 {
+    private static Dictionary<EventCodesEnum, IEventHandler> eventHandlers = new Dictionary<EventCodesEnum, IEventHandler>()
+    {
+        { EventCodesEnum.FALL_TILE, new EventHandlers.FallHexagonEventHandler() },
+        { EventCodesEnum.SPAWN_PLAYER_ON_RANDOM_TILE, new EventHandlers.SpawnPlayerEventHandler() },
+        { EventCodesEnum.SHOW_NOTIFICATION, new EventHandlers.ShowNotificationEventHandler() },
+    };
+
     public PUNEventHandler()
     {
         PhotonNetwork.AddCallbackTarget(this);
@@ -24,42 +32,12 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
     {
         try
         {
-            if (photonEvent.Code != (byte)EventCodesEnum.FALL_TILE)
-                return;
-
-            Main.Log("got event");
-
-            if (CustomGameManager.Instance is not CustomGameManager manager)
-                return;
-
-            if (manager.CurrentState != GameState.GameStateEnum.GameOn)
-                return;
-
-            if (photonEvent.CustomData is not int tileIndex)
+            if (CustomGameManager.instance is not CustomGameManager) return;
+            if (eventHandlers.TryGetValue((EventCodesEnum)photonEvent.Code, out IEventHandler handler))
             {
-                Main.Log("Bad event, not expected data type", BepInEx.Logging.LogLevel.Warning);
-                return;
+                NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
+                handler.OnEvent(player, photonEvent.CustomData);
             }
-
-            NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
-            if (player == null || player.IsLocal)
-            {
-                Main.Log("Bad event", BepInEx.Logging.LogLevel.Warning);
-                return;
-            }
-
-            var tile = WorldManager.GetTileByIndex(tileIndex);
-
-            VRRig rig = manager.FindPlayerVRRig(player);
-            const float maxDistance = 10;
-            if (Vector3.Distance(rig.transform.position, tile.transform.position) > maxDistance)
-            {
-                Main.Log("Tile to fare away, likely a cheater.", BepInEx.Logging.LogLevel.Warning);
-                return;
-            }
-
-            Main.Log("Falling tile, told to from other player", BepInEx.Logging.LogLevel.Debug);
-            tile.Fall();
         }
         catch (Exception ex)
         {

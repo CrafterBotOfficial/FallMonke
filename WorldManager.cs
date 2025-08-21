@@ -38,7 +38,7 @@ public static class WorldManager
         if (scene.name == "Crafterbot")
         {
             hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
-            CustomGameManager.Instance.NotificationHandler.Setup();
+            ((CustomGameManager)CustomGameManager.instance).NotificationHandler.Setup();
             Main.Log(hexagonParent.Hexagons.Length + " tiles");
 
             GameObject.Find("FallMonke Buttons/Start/Text (TMP)").GetComponent<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;

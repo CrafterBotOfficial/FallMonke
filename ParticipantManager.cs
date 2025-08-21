@@ -12,6 +12,7 @@ public class ParticipantManager : MonoBehaviour
     private async void Update()
     {
         // if (!HasAuthority(out bool isMine)) return;
+        var manager = (CustomGameManager)GorillaGameManager.instance;// https://www.youtube.com/shorts/pFB5F-fS_Y4
 
         if (!Info.IsAlive)
             return;
@@ -20,7 +21,7 @@ public class ParticipantManager : MonoBehaviour
         {
             // I died
             Info.IsAlive = false;
-            var manager = CustomGameManager.Instance; // https://www.youtube.com/shorts/pFB5F-fS_Y4
+
             if (Info.Player.IsLocal)
             {
                 await System.Threading.Tasks.Task.Delay(2500);
@@ -36,7 +37,7 @@ public class ParticipantManager : MonoBehaviour
         {
             Main.Log("Yeeting platform");
             hit.Fall();
-            CustomGameManager.Instance.BroadcastController.FallPlatform(hit);
+            manager.BroadcastController.FallPlatform(hit);
             // else if (NetworkSystem.Instance.IsMasterClient)
             // {
             //     Main.Log($"player {Player.NickName} just fell a platform", BepInEx.Logging.LogLevel.Debug);

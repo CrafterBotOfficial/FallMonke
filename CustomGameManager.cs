@@ -16,8 +16,6 @@ namespace FallMonke;
 
 public class CustomGameManager : GorillaGameManager
 {
-    public static CustomGameManager Instance;
-
     public const string MOD_KEY = "fallmonke_prop";
 
     public INotificationHandler NotificationHandler;
@@ -33,7 +31,6 @@ public class CustomGameManager : GorillaGameManager
     public override void Awake()
     {
         base.Awake();
-        Instance = this;
         slowJumpLimit = 6.5f;
         fastJumpLimit = 8.5f;
         slowJumpMultiplier = 1.1f;
@@ -75,7 +72,7 @@ public class CustomGameManager : GorillaGameManager
     public void CreateParticipants()
     {
         Players = BroadcastController.CreateParticipants();
-        ParticipantActorNumbers = CustomGameManager.Instance.Players.Select(player => player.Player.ActorNumber).ToArray();
+        ParticipantActorNumbers = ((CustomGameManager)CustomGameManager.instance).Players.Select(player => player.Player.ActorNumber).ToArray();
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
