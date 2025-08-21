@@ -75,4 +75,10 @@ public static class WorldManager
             }
         return result;
     }
+
+    public static void ResetTiles()
+    {
+        foreach (var tile in hexagonParent.Hexagons)
+            tile.Reset();
+    }
 }

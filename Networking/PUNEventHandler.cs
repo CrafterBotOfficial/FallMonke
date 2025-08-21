@@ -28,7 +28,7 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
                 return;
 
             Main.Log("got event");
-            
+
             if (CustomGameManager.Instance is not CustomGameManager manager)
                 return;
 
