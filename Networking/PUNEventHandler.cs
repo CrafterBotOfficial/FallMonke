@@ -14,6 +14,7 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
         { EventCodesEnum.FALL_TILE, new EventHandlers.FallHexagonEventHandler() },
         { EventCodesEnum.SPAWN_PLAYER_ON_RANDOM_TILE, new EventHandlers.SpawnPlayerEventHandler() },
         { EventCodesEnum.SHOW_NOTIFICATION, new EventHandlers.ShowNotificationEventHandler() },
+        { EventCodesEnum.REQUEST_TO_START_GAME, new EventHandlers.StartGameRequestHandler() },
     };
 
     public PUNEventHandler()

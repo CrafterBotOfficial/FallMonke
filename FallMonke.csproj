@@ -89,6 +89,9 @@
     <Reference Include="UnityEngine.XR">
       <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.XRModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+          <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UIModule">
       <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>

@@ -50,8 +50,6 @@ public class PendingStart : IGameState
 
     public bool CanStartGame(CustomGameManager manager)
     {
-        // todo: add any other requirements, like players actually having the mod
-        // todo: change to check custom props using IBroadcastController to ensure it doesnt start if quest players are present
-        return NetworkSystem.Instance.AllNetPlayers.Length >= RequiredPlayerCount;
+        return NetworkSystem.Instance.AllNetPlayers.Length >= RequiredPlayerCount && ((CustomGameManager)CustomGameManager.instance).StartButtonPressed;
     }
 }

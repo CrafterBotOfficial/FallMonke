@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 using System.Collections;
 
 namespace FallMonke.Hexagon;
@@ -44,6 +45,8 @@ public class FallableHexagon : MonoBehaviour
             elapsed += Time.deltaTime;
             yield return null;
         }
+
+        GetComponent<AudioSource>().PlayOneShot(GetComponent<AudioSource>().clip);
 
         renderer.material.color = Color.white;
         gameObject.SetActive(false);
