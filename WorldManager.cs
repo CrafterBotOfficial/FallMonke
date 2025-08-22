@@ -1,15 +1,17 @@
 // this is just testing code, once the scene is ready we will load it ontop of the normal world. It will contain all of the assets and decorations and hexagons
 
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System.Linq;
 using FallMonke.Hexagon;
 
 namespace FallMonke;
 
 public static class WorldManager
 {
+    private static bool sceneLoaded;
+
     public static AssetLoader AssetLoader;
     private static HexagonParent hexagonParent;
     public static float EliminationHeight;
@@ -30,56 +32,69 @@ public static class WorldManager
         boardText.text = headerBuilder.Append(stringBuilder).ToString();
     }
 
-    public static void LoadWorld()
+    public static async void LoadWorld()
     {
+        while (sceneLoaded) // sometimes the scene wont unload in a timely enough fashion and then it will laod another ontop of it.
+        {
+            await Task.Yield();
+        }
         Main.Log("Loading game scene!", BepInEx.Logging.LogLevel.Message);
 
         // var sceneName = AssetLoader.GetSceneName();
         SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);
+        sceneLoaded = true;
     }
 
     public static void UnloadWorld()
     {
         Main.Log("Removing world");
-        SceneManager.UnloadSceneAsync("Crafterbot");
+        var operation = SceneManager.UnloadSceneAsync("Crafterbot");
+        operation.completed += _ =>
+        {
+            Main.Log("Scene finished unloading");
+            sceneLoaded = false;
+        };
     }
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Main.Log("Scene loaded", BepInEx.Logging.LogLevel.Message);
-        if (scene.name == "Crafterbot")
-        {
-            hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
-            ((CustomGameManager)CustomGameManager.instance).NotificationHandler.Setup();
-            Main.Log(hexagonParent.Hexagons.Length + " tiles");
+        if (scene.name != "Crafterbot")
+            return;
 
-            SetupButtons();
-            GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>();
-            EliminationHeight = GameObject.Find("/WaterVRview").transform.position.y;
+        hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
+        ((CustomGameManager)CustomGameManager.instance).NotificationHandler.Setup();
+        Main.Log(hexagonParent.Hexagons.Length + " tiles");
 
-            GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+        SetupButtons();
+        GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>();
+        EliminationHeight = GameObject.Find("/WaterVRview").transform.position.y;
 
-            // setup board
-            boardText = GameObject.Find("/TextComponents/TextHeader").GetComponent<TextMeshPro>();
-            boardText.font = GorillaTextFont;
-            boardText.text = string.Empty;
+        GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
 
-            TeleportController.TeleportToLobby();
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
+        // setup board
+        boardText = GameObject.Find("/TextComponents/TextHeader").GetComponent<TextMeshPro>();
+        boardText.font = GorillaTextFont;
+        boardText.text = string.Empty;
+
+        TeleportController.TeleportToLobby();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private static void SetupButtons()
     {
         var startGameButton = GameObject.Find("FallMonke Buttons/Start");
         var leaveButton = GameObject.Find("FallMonke Buttons/Leave");
+        var streamerModeButton = GameObject.Find("FallMonke Buttons/Streamer");
 
         startGameButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
         leaveButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+        streamerModeButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
 
         startGameButton.AddComponent<UI.Buttons.StartGameButton>();
         leaveButton.AddComponent<UI.Buttons.LeaveGameButton>();
+        streamerModeButton.AddComponent<UI.Buttons.StreamerModeButton>();
     }
 
     public static FallableHexagon GetTileByIndex(int index)
