@@ -7,8 +7,12 @@ public class MonkeNotificationLibWrapper : INotificationHandler
     public void Setup()
     {
     }
+
     public void ShowNotification(string text)
     {
-        NotificationController.AppendMessage("FallMonke", text);
+        if (!UI.Buttons.StreamerModeButton.MuteNotifications)
+        {
+            NotificationController.AppendMessage("FallMonke", text);
+        }
     }
 }

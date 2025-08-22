@@ -27,6 +27,7 @@ public class FallableHexagon : MonoBehaviour
 
     public void Reset()
     {
+        try { StopCoroutine(FallingCorountine()); } catch (System.Exception ex) { Main.Log($"Failed to stop tile from falling during reset: {ex}", BepInEx.Logging.LogLevel.Warning); }
         gameObject.SetActive(true);
         TileAnimation(down: false);
         IsFalling = false;

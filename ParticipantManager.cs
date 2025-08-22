@@ -45,7 +45,9 @@ public class ParticipantManager : MonoBehaviour
         // change: Master no longer manages tiles, each player does then tells everyone else when fell
         if (Info.Player.IsLocal && !manager.CooldownInAffect)
             foreach (var bodyPart in bodyParts)
-                if (TryRaycastToTerrain(bodyPart.position, out FallableHexagon hit) && !hit.IsFalling)
+                if (TryRaycastToTerrain(bodyPart.position,
+                                        bodyPart == bodyParts[0] ? .3f : .1f, // testing code, should refactor later
+                                        out FallableHexagon hit) && !hit.IsFalling) // todo: we should have a fatter spherecast for the main body so a player can sit on the ledge
                 {
                     Main.Log("Yeeting platform, detector: " + bodyPart.name, BepInEx.Logging.LogLevel.Debug);
                     hit.Fall();
@@ -54,12 +56,12 @@ public class ParticipantManager : MonoBehaviour
     }
 
     // todo: we should also raycast from both hands down, otherwise players can cheat
-    private bool TryRaycastToTerrain(Vector3 origin, out FallableHexagon hitPlatform)
+    private bool TryRaycastToTerrain(Vector3 origin, float radius, out FallableHexagon hitPlatform)
     {
         Vector3 offset = origin + Vector3.up * 0.1f;
-        float distance = 0.5f;
+        const float distance = 0.5f;
 
-        bool hitSomething = Physics.Raycast(offset, Vector3.down, out RaycastHit hit, distance, LayerMask.GetMask("Gorilla Object"));
+        bool hitSomething = Physics.SphereCast(offset, radius, Vector3.down, out RaycastHit hit, distance, LayerMask.GetMask("Gorilla Object"));
         if (hitSomething && hit.transform.gameObject.TryGetComponent(out FallableHexagon tile))
         {
             hitPlatform = tile;
