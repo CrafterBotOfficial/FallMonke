@@ -6,7 +6,7 @@ namespace FallMonke.GameState;
 public class PendingStart : IGameState
 {
     private const int RequiredPlayerCount = 2;
-    private static readonly TimeSpan GameOnCountdown = TimeSpan.FromMinutes(.5f);
+    private static readonly TimeSpan GameOnCountdown = TimeSpan.FromSeconds(10);
 
     private bool countdown;
     private DateTime startGameTime;
@@ -36,7 +36,6 @@ public class PendingStart : IGameState
             if (startGameTime <= DateTime.Now)
             {
                 Main.Log("Game on!");
-                manager.NotificationHandler.ShowNotification("Game on!");
                 return GameStateEnum.GameOn;
             }
         }
