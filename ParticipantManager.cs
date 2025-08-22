@@ -43,11 +43,11 @@ public class ParticipantManager : MonoBehaviour
         }
 
         // change: Master no longer manages tiles, each player does then tells everyone else when fell
-        if (Info.Player.IsLocal)
+        if (Info.Player.IsLocal && !manager.CooldownInAffect)
             foreach (var bodyPart in bodyParts)
                 if (TryRaycastToTerrain(bodyPart.position, out FallableHexagon hit) && !hit.IsFalling)
                 {
-                    Main.Log("Yeeting platform, detector: " + bodyPart.name);
+                    Main.Log("Yeeting platform, detector: " + bodyPart.name, BepInEx.Logging.LogLevel.Debug);
                     hit.Fall();
                     manager.BroadcastController.FallPlatform(hit);
                 }

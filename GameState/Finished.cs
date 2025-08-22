@@ -31,5 +31,13 @@ public class Finished : IGameState
 
         WorldManager.ResetTiles();
         TeleportController.TeleportToLobby();
+
+        // play gtag game over sound
+        VRRig.LocalRig.PlayTagSoundLocal(2, .25f, stopCurrentAudio: true);
+    }
+
+    public GameBoardText GetBoardText()
+    {
+        return new GameBoardText("Loading", new("Loading"));
     }
 }
