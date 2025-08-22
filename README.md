@@ -13,3 +13,9 @@
 ## Requirements
 - Latest version of Utilla
 - **NO** Computer Interface (for now since it tends to break the entire mod)
+
+
+## Legal
+Usage of MonkeFall is at own risk.
+
+This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom. Portions of the materials contained herein are property of Another Axiom. Â©2021 Another Axiom Inc. - https://www.anotheraxiom.com/fan-content-and-mod-policy
