@@ -8,10 +8,20 @@ public class ParticipantManager : MonoBehaviour
     public Participant Info;
     public VRRig Rig;
 
+    private Transform[] bodyParts;
+
+    private void Awake()
+    {
+        bodyParts = [
+            Rig.transform,
+            Rig.leftHandTransform,
+            Rig.rightHandTransform
+        ];
+    }
+
     // the idea behind this is everything will happen twice, once on locally only for the player and another for the master client
     private async void Update()
     {
-        // if (!HasAuthority(out bool isMine)) return;
         var manager = (CustomGameManager)GorillaGameManager.instance;// https://www.youtube.com/shorts/pFB5F-fS_Y4
 
         if (!Info.IsAlive)
@@ -24,7 +34,7 @@ public class ParticipantManager : MonoBehaviour
 
             if (Info.Player.IsLocal)
             {
-                await System.Threading.Tasks.Task.Delay(2500);
+                await System.Threading.Tasks.Task.Delay(2500); // ensures other players recognize this one has been dead
                 manager.NotificationHandler.ShowNotification("You have been eliminated");
                 TeleportController.TeleportToLobby();
             }
@@ -33,26 +43,23 @@ public class ParticipantManager : MonoBehaviour
         }
 
         // change: Master no longer manages tiles, each player does then tells everyone else when fell
-        if (Info.Player.IsLocal && TryRaycastToTerrain(out FallableHexagon hit) && !hit.IsFalling)
-        {
-            Main.Log("Yeeting platform");
-            hit.Fall();
-            manager.BroadcastController.FallPlatform(hit);
-            // else if (NetworkSystem.Instance.IsMasterClient)
-            // {
-            //     Main.Log($"player {Player.NickName} just fell a platform", BepInEx.Logging.LogLevel.Debug);
-            // }
-        }
+        if (Info.Player.IsLocal)
+            foreach (var bodyPart in bodyParts)
+                if (TryRaycastToTerrain(bodyPart.position, out FallableHexagon hit) && !hit.IsFalling)
+                {
+                    Main.Log("Yeeting platform, detector: " + bodyPart.name);
+                    hit.Fall();
+                    manager.BroadcastController.FallPlatform(hit);
+                }
     }
 
     // todo: we should also raycast from both hands down, otherwise players can cheat
-    private bool TryRaycastToTerrain(out FallableHexagon hitPlatform)
+    private bool TryRaycastToTerrain(Vector3 origin, out FallableHexagon hitPlatform)
     {
-        Vector3 origin = GorillaLocomotion.GTPlayer.Instance.bodyCollider.bounds.center + Vector3.up * 0.1f;
+        Vector3 offset = origin + Vector3.up * 0.1f;
         float distance = 0.5f;
 
-        bool hitSomething = Physics.Raycast(origin, Vector3.down, out RaycastHit hit, distance, LayerMask.GetMask("Gorilla Object"));
-
+        bool hitSomething = Physics.Raycast(offset, Vector3.down, out RaycastHit hit, distance, LayerMask.GetMask("Gorilla Object"));
         if (hitSomething && hit.transform.gameObject.TryGetComponent(out FallableHexagon tile))
         {
             hitPlatform = tile;
@@ -63,9 +70,9 @@ public class ParticipantManager : MonoBehaviour
         return false;
     }
 
+    // handle player leave
     private void OnDisable()
     {
-        // handle player leave
         Info.IsAlive = false;
         Destroy(this);
     }
