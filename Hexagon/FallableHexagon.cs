@@ -28,13 +28,20 @@ public class FallableHexagon : MonoBehaviour
     public void Reset()
     {
         gameObject.SetActive(true);
+        TileAnimation(down: false);
         IsFalling = false;
         renderer.material.color = originalColor;
     }
 
+    private void TileAnimation(bool down) =>
+        GetComponent<Animator>().SetBool("TileDown", down);
+
     private IEnumerator FallingCorountine()
     {
         IsFalling = true;
+
+        GetComponent<AudioSource>().PlayOneShot(GetComponent<AudioSource>().clip);
+        TileAnimation(down: true);
 
         yield return new WaitForSeconds(0.35f);
 
@@ -46,10 +53,9 @@ public class FallableHexagon : MonoBehaviour
             yield return null;
         }
 
-        GetComponent<AudioSource>().PlayOneShot(GetComponent<AudioSource>().clip);
-
         renderer.material.color = Color.white;
         gameObject.SetActive(false);
         IsFalling = false;
     }
+
 }
