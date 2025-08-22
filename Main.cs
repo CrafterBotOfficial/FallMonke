@@ -16,11 +16,13 @@ public class Main : BaseUnityPlugin
     private void Awake()
     {
         instance = this;
-        HarmonyLib.Harmony.CreateAndPatchAll(typeof(Main).Assembly);
         Utilla.Events.GameInitialized += (sender, args) =>
         {
             if (NetworkSystem.Instance is not NetworkSystemPUN) // todo: add fusion support, assuming the game ever actually switches
                 return;
+            HarmonyLib.Harmony.CreateAndPatchAll(typeof(Main).Assembly);
+
+            TeleportController.CreateStumpAnchor();
 
             AssetLoader assetLoader = new AssetLoader("FallMonke.Resources.hexagone");
             WorldManager.AssetLoader = assetLoader;

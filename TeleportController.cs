@@ -5,6 +5,15 @@ namespace FallMonke;
 
 public static class TeleportController
 {
+    private static Transform stumpSpawnpoint;
+
+    public static void CreateStumpAnchor()
+    {
+        Vector3 position = new Vector3(-67, 11, -82); // todo: make more precise, should be perfect center
+        stumpSpawnpoint = new GameObject().transform;
+        stumpSpawnpoint.position = position;
+    }
+
     public static void TeleportToLobby()
     {
         TeleportLocalPlayer("/LobbySpawnpoint");
@@ -31,8 +40,7 @@ public static class TeleportController
 
     public static void TeleportToStump()
     {
-        Vector3 position = new Vector3(-67, 11, -82); // todo: make more precise, should be perfect center
-        TeleportLocalPlayer(position);
+        TeleportLocalPlayer(stumpSpawnpoint);
     }
 
     private static void TeleportLocalPlayer(string anchor)
@@ -43,15 +51,12 @@ public static class TeleportController
             Main.Log("Failed to find tp anchor", BepInEx.Logging.LogLevel.Fatal);
             return;
         }
-        GorillaLocomotion.GTPlayer.Instance.TeleportTo(anchorObject.transform);
+        TeleportLocalPlayer(anchorObject.transform);
     }
 
-    private static void TeleportLocalPlayer(Vector3 position)
+    private static void TeleportLocalPlayer(Transform anchor)
     {
-        var headRotation = GorillaLocomotion.GTPlayer.Instance.headCollider.transform.rotation;
-        Vector3 playerVRCenterOffset = Camera.main.transform.position - GorillaLocomotion.GTPlayer.Instance.transform.position;
-        Vector3 floorOffset = new Vector3(playerVRCenterOffset.x, 0, playerVRCenterOffset.z);
-        GorillaLocomotion.GTPlayer.Instance.TeleportTo(position - playerVRCenterOffset, headRotation, false);
+        GorillaLocomotion.GTPlayer.Instance.TeleportTo(anchor.transform);
     }
 
     // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle

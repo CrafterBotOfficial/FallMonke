@@ -1,6 +1,6 @@
 /*
 If a player joins late we should just ignore them, partipants are set when the game starts
-Should remove all references to PUN as it seems it will be removed in future updates, should rely on the Networking and NetworkSystems instead
+Should remove all references to PUN as it seems it will be removed in future updates, should rely on the FallMonke.Networking and NetworkSystems instead
 
 fyi: If someone doesn't have the mod it won't break anything, it just wont create the gamemode stuff on there client and will log warnings about the gamemanager being null. So no risk of breaking other clients or reports
 */
@@ -104,7 +104,7 @@ public class CustomGameManager : GorillaGameManager
         {
             var details = new GameStateDetails
             {
-                RemainingPlayers = Players is null ? -1 : Players.Count(player => player.IsAlive),
+                RemainingPlayers = Players == null ? -1 : Players.Count(player => player.IsAlive),
                 RemainingTiles = WorldManager.GetRemainingTiles()
             };
             HandleStateSwitch(CurrentStateHandler.CheckGameState(details));
