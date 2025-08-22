@@ -38,6 +38,31 @@ public class GameOn : IGameState
             int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
             manager.BroadcastController.SendRandomSeed(seed);
         }
+
+        // test code - lets see if this feels good or not
+        manager.CooldownInAffect = true;
+        new System.Threading.Thread(async () =>
+        {
+            await System.Threading.Tasks.Task.Delay(3000);
+            manager.CooldownInAffect = false;
+        }).Start();
+    }
+
+    public GameBoardText GetBoardText()
+    {
+        var manager = (CustomGameManager)CustomGameManager.instance;
+        if (manager.Players.IsNullOrEmpty())
+            return new();
+
+        var stringBuilder = new System.Text.StringBuilder();
+        var players = manager.Players.OrderBy(player => player.IsAlive);
+        foreach (var player in players)
+            if (player.IsAlive)
+                stringBuilder.AppendLine($"<align=\"left\">{player.Player.SanitizedNickName}");
+            else
+                stringBuilder.AppendLine($"<align=\"left\"><color=#ff0800>{player.Player.SanitizedNickName}</color>");
+
+        return new GameBoardText("Remaining Players", stringBuilder);
     }
 
     private Participant GetWinner()

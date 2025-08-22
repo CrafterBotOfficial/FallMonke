@@ -6,6 +6,14 @@ public class StartGameRequestHandler : IEventHandler
     {
         if (CustomGameManager.instance is CustomGameManager manager)
         {
+            if (manager.CurrentState != GameState.GameStateEnum.PendingStart)
+            {
+                if (sender.IsLocal)
+                {
+                    manager.NotificationHandler.ShowNotification("Please wait for this round to finish.");
+                }
+                return;
+            }
             if (manager.StartButtonPressed)
             {
                 if (sender.IsLocal)

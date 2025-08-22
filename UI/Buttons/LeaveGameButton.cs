@@ -6,6 +6,6 @@ public class LeaveGameButton : PressableButton
     {
         base.ButtonActivation();
         Photon.Pun.PhotonNetwork.Disconnect(); // calls disconnect cleanup stuff
-        TeleportController.TeleportToStump();
+        // TeleportController.TeleportToStump();
     }
 }

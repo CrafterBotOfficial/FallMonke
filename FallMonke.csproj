@@ -23,6 +23,9 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
 
+    <Reference Include="MonkeNotificationLib">
+      <HintPath>$(GORILLATAG_PATH)\BepInEx\plugins\MonkeNotificationLib\MonkeNotificationLib.dll</HintPath>
+    </Reference>
     <Reference Include="0Harmony">
       <HintPath>$(GORILLATAG_PATH)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>

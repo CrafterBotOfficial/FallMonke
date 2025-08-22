@@ -31,6 +31,7 @@ public class CustomGameManager : GorillaGameManager
     public Participant LocalPlayer;
 
     public bool StartButtonPressed;
+    public bool CooldownInAffect;
 
     public override void Awake()
     {
@@ -50,11 +51,12 @@ public class CustomGameManager : GorillaGameManager
 
         StartButtonPressed = false;
 
-#if DEBUG
-        NotificationHandler = new NotificationSystem.DebugNotificationHandler();
-#else
-        // todo
-#endif
+        NotificationHandler = new NotificationSystem.MonkeNotificationLibWrapper();
+        // #if DEBUG
+        //         NotificationHandler = new NotificationSystem.DebugNotificationHandler();
+        // #else
+        //         // todo
+        // #endif
 
         BroadcastController = new Networking.PUNBroadcastController();  // todo: ideally make this only happen if PUN is nolonger an option
         BroadcastController.MakeModIdentifable();
@@ -73,6 +75,7 @@ public class CustomGameManager : GorillaGameManager
         base.StopPlaying();
         WorldManager.UnloadWorld();
         BroadcastController.Cleanup();
+        TeleportController.TeleportToStump();
     }
 
     public void CreateParticipants()
@@ -82,10 +85,21 @@ public class CustomGameManager : GorillaGameManager
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
+    // should be moved to game state handlers
+    public void UpdateBoard()
+    {
+        if (CurrentStateHandler != null)
+        {
+            var text = CurrentStateHandler.GetBoardText();
+            WorldManager.SetBoardText(text.Title, text.Body);
+        }
+    }
+
     // todo: must be called right after player is eliminated to ensure Players.Count != 0 never ever
     public override void InfrequentUpdate()
     {
         base.InfrequentUpdate();
+        UpdateBoard();
         if (NetworkSystem.Instance.IsMasterClient)
         {
             var details = new GameStateDetails

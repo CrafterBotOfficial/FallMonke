@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace FallMonke.GameState;
 
@@ -46,6 +47,22 @@ public class PendingStart : IGameState
     public void OnSwitchTo()
     {
         countdown = false;
+    }
+
+    public GameBoardText GetBoardText()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine(string.Empty);
+        stringBuilder.AppendLine(string.Empty);
+        if (NetworkSystem.Instance.AllNetPlayers.Length > 1)
+            if (((CustomGameManager)CustomGameManager.instance).StartButtonPressed)
+                stringBuilder.AppendLine("Game will start in 30 seconds");
+            else
+                stringBuilder.AppendLine("Ready to start");
+        else
+            stringBuilder.AppendLine("Not enough players");
+
+        return new GameBoardText("Pending Game Start", stringBuilder);
     }
 
     public bool CanStartGame(CustomGameManager manager)

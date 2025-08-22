@@ -12,8 +12,23 @@ public static class WorldManager
 {
     public static AssetLoader AssetLoader;
     private static HexagonParent hexagonParent;
-
     public static float EliminationHeight;
+
+    public static TMP_FontAsset GorillaTextFont;
+    private static TextMeshPro boardText;
+
+    public static void SetBoardText(string header, System.Text.StringBuilder stringBuilder)
+    {
+        if (boardText == null)
+        {
+            Main.Log(stringBuilder, BepInEx.Logging.LogLevel.Warning);
+            return;
+        }
+        var headerBuilder = new System.Text.StringBuilder();
+        headerBuilder.AppendLine(header);
+        headerBuilder.AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - -");
+        boardText.text = headerBuilder.Append(stringBuilder).ToString();
+    }
 
     public static void LoadWorld()
     {
@@ -40,9 +55,15 @@ public static class WorldManager
             Main.Log(hexagonParent.Hexagons.Length + " tiles");
 
             SetupButtons();
-            try { GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>(); } catch { }
-
+            GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>();
             EliminationHeight = GameObject.Find("/WaterVRview").transform.position.y;
+
+            GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+
+            // setup board
+            boardText = GameObject.Find("/TextComponents/TextHeader").GetComponent<TextMeshPro>();
+            boardText.font = GorillaTextFont;
+            boardText.text = string.Empty;
 
             TeleportController.TeleportToLobby();
             SceneManager.sceneLoaded -= OnSceneLoaded;
