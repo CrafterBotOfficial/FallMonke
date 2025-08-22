@@ -10,7 +10,7 @@ public class ParticipantManager : MonoBehaviour
 
     private Transform[] bodyParts;
 
-    private void Awake()
+    private void Start()
     {
         bodyParts = [
             Rig.transform,
