@@ -1,4 +1,4 @@
-namespace FallMonke.GamePlayer;
+namespace FallMonke;
 
 public class Participant(NetPlayer player)
 {
