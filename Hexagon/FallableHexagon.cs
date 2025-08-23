@@ -44,19 +44,19 @@ public class FallableHexagon : MonoBehaviour
         GetComponent<AudioSource>().PlayOneShot(GetComponent<AudioSource>().clip);
         TileAnimation(down: true);
 
-        yield return new WaitForSeconds(0.35f);
 
         float elapsed = 0f;
-        while (elapsed < 0.15f)
+        while (elapsed < 0.25f)
         {
-            renderer.material.color = Color.Lerp(originalColor, Color.white, elapsed / 0.15f);
+            renderer.material.color = Color.Lerp(originalColor, Color.white, elapsed / 0.25f);
             elapsed += Time.deltaTime;
-            yield return null;
+            yield return new WaitForSeconds(0.005f);
         }
+
+        yield return new WaitForSeconds(0.25f);
 
         renderer.material.color = Color.white;
         gameObject.SetActive(false);
         IsFalling = false;
     }
-
 }
