@@ -7,6 +7,7 @@ public class SpawnPlayerEventHandler : IEventHandler
         if (sender.IsMasterClient && data is int random)
         {
             TeleportController.TeleportToGame(random);
+            return;
         }
         Main.Log("Bad event", BepInEx.Logging.LogLevel.Warning);
     }

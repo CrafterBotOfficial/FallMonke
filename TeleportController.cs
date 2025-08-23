@@ -9,7 +9,7 @@ public static class TeleportController
 
     public static void CreateStumpAnchor()
     {
-        Vector3 position = new Vector3(-67, 11, -82); // todo: make more precise, should be perfect center
+        Vector3 position = new Vector3(-67, 13, -82); // todo: make more precise, should be perfect center
         stumpSpawnpoint = new GameObject().transform;
         stumpSpawnpoint.position = position;
     }

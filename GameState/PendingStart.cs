@@ -57,7 +57,7 @@ public class PendingStart : IGameState
         bool enoughPlayers = manager.BroadcastController.PlayersWithModCount() >= CustomGameManager.REQUIRED_PLAYER_COUNT;
         if (enoughPlayers)
             if (manager.StartButtonPressed)
-                stringBuilder.AppendLine("Game will start in 30 seconds");
+                stringBuilder.AppendLine("Game will start in 10 seconds");
             else
                 stringBuilder.AppendLine("Ready to start");
         else
