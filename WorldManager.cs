@@ -75,7 +75,9 @@ public static class WorldManager
         Main.Log(hexagonParent.Hexagons.Length + " tiles");
 
         SetupButtons();
-        GameObject.Find("room").GetComponent<MeshCollider>().AddComponent<GorillaSurfaceOverride>();
+
+        GameObject.Find("room").AddComponent<GorillaSurfaceOverride>().transform.GetChild(0).AddComponent<GorillaSurfaceOverride>().overrideIndex = 120;
+
         EliminationHeight = GameObject.Find("/WaterVRview").transform.position.y;
 
         GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
