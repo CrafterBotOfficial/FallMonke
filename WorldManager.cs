@@ -40,6 +40,13 @@ public static class WorldManager
         }
         Main.Log("Loading game scene!", BepInEx.Logging.LogLevel.Message);
 
+        if (!NetworkSystem.Instance.InRoom)
+        {
+            Main.Log("Player left prior to scene loading.");
+            WorldManager.UnloadWorld();
+            return;
+        }
+
         // var sceneName = AssetLoader.GetSceneName();
         SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);

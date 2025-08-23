@@ -22,7 +22,7 @@ public class ParticipantManager : MonoBehaviour
     // the idea behind this is everything will happen twice, once on locally only for the player and another for the master client
     private async void Update()
     {
-        var manager = (CustomGameManager)GorillaGameManager.instance;// https://www.youtube.com/shorts/pFB5F-fS_Y4
+        var manager = (CustomGameManager)GorillaGameManager.instance; // https://www.youtube.com/shorts/pFB5F-fS_Y4
 
         if (!Info.IsAlive)
             return;
@@ -55,10 +55,11 @@ public class ParticipantManager : MonoBehaviour
             }
 
             // hands - only if nothing under body
-            if (TryRaycastToTerrain(Rig.transform.position, .05f, out hexagon))
-            {
-                OnTouchHexagon(manager, hexagon);
-            }
+            foreach (var hand in rigHands)
+                if (TryRaycastToTerrain(hand.position, .05f, out hexagon))
+                {
+                    OnTouchHexagon(manager, hexagon);
+                }
         }
     }
 
@@ -74,13 +75,11 @@ public class ParticipantManager : MonoBehaviour
 
     private bool TryRaycastToTerrain(Vector3 origin, float distance, out FallableHexagon hitPlatform)
     {
-        Vector3 offset = origin + Vector3.up * 0.1f;
-        const float radius = 0.1f;
+        const float radius = 0.05f;
 
-        bool hitSomething = Physics.SphereCast(offset, radius, Vector3.down, out RaycastHit hit, distance, hexagonLayer);
-        if (hitSomething && hit.transform.gameObject.TryGetComponent(out FallableHexagon tile))
+        bool hitSomething = Physics.SphereCast(origin + new Vector3(0f, .025f, 0f), radius, Vector3.down, out RaycastHit hit, distance, hexagonLayer);
+        if (hitSomething && hit.transform.gameObject.TryGetComponent(out hitPlatform))
         {
-            hitPlatform = tile;
             return true;
         }
 

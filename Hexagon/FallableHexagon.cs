@@ -57,6 +57,5 @@ public class FallableHexagon : MonoBehaviour
 
         renderer.material.color = Color.white;
         gameObject.SetActive(false);
-        IsFalling = false;
     }
 }

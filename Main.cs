@@ -34,8 +34,8 @@ public class Main : BaseUnityPlugin
     {
         GUILayout.BeginVertical();
         // if (GUILayout.Button("Join Room")) NetworkSystem.Instance.ConnectToRoom("CRAFTERBOT", RoomConfig.AnyPublicConfig());
-        if (GUILayout.Button("Force Load World")) WorldManager.LoadWorld();
-        if (GUILayout.Button("Force UnLoad World")) WorldManager.UnloadWorld();
+        // if (GUILayout.Button("Force Load World")) WorldManager.LoadWorld();
+        // if (GUILayout.Button("Force UnLoad World")) WorldManager.UnloadWorld();
         // if (NetworkSystem.Instance != null && NetworkSystem.Instance.InRoom) GUILayout.Label(Photon.Pun.PhotonNetwork.CurrentRoom.CustomProperties.ToString());
         // if (GUILayout.Button("Force Start Game Local")) { CustomGameManager.Instance. }
     }
