@@ -7,7 +7,6 @@ namespace FallMonke;
 
 [BepInPlugin("com.crafterbot.monkefall", "Fall Monke", "1.0.0")]
 [BepInDependency("org.legoandmars.gorillatag.utilla", "1.6.0"), BepInDependency("crafterbot.notificationlib")]
-[BepInIncompatibility("tonimacaroni.computerinterface")] // No way to specify a version? If so we must manually check if bad version of CI
 [ModdedGamemode("FALLMONKE", "FALL MONKE", typeof(CustomGameManager))]
 public class Main : BaseUnityPlugin
 {
