@@ -19,6 +19,7 @@ namespace FallMonke;
 public class CustomGameManager : GorillaGameManager
 {
     public const string MOD_KEY = "fallmonke_prop";
+    public const int REQUIRED_PLAYER_COUNT = 2;
 
     public INotificationHandler NotificationHandler;
     public IBroadcastController BroadcastController;
@@ -105,7 +106,6 @@ public class CustomGameManager : GorillaGameManager
             var details = new GameStateDetails
             {
                 RemainingPlayers = Players == null ? -1 : Players.Count(player => player.IsAlive),
-                RemainingTiles = WorldManager.GetRemainingTiles()
             };
             HandleStateSwitch(CurrentStateHandler.CheckGameState(details));
         }
@@ -125,6 +125,14 @@ public class CustomGameManager : GorillaGameManager
             CurrentStateHandler = handler;
             CurrentStateHandler.OnSwitchTo();
         }
+    }
+
+    public bool CanStartGame()
+    {
+        if (CurrentStateHandler == null || BroadcastController == null) return false;
+        if (CurrentState != GameStateEnum.PendingStart) return false;
+
+        return BroadcastController.PlayersWithModCount() >= REQUIRED_PLAYER_COUNT && StartButtonPressed;
     }
 
     public override void OnSerializeRead(object newData) { Main.Log("Got new state " + (int)newData); HandleStateSwitch((GameStateEnum)newData); }
@@ -174,7 +182,6 @@ public class CustomGameManager : GorillaGameManager
 
     public new string GameTypeName()
     {
-        Main.Log("GameTypeName called", BepInEx.Logging.LogLevel.Message);
         return "FALLMONKE";
     }
 
@@ -194,5 +201,4 @@ public class CustomGameManager : GorillaGameManager
 public struct GameStateDetails
 {
     public int RemainingPlayers;
-    public int RemainingTiles;
 }

@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
@@ -57,13 +58,25 @@ public class PUNBroadcastController : IBroadcastController
 
     public Participant[] CreateParticipants()
     {
+        return GetPlayersQuery().Select(player => CreateParticipant(player))
+                                .ToArray();
+    }
+
+    public int PlayersWithModCount()
+    {
+        return GetPlayersQuery().Count();
+    }
+
+    // todo: make a list that only changes when players leaves or joins
+    private IEnumerable<Player> GetPlayersQuery()
+    {
         var query = (
             from player in PhotonNetwork.PlayerList
             where player.ActorNumber != -1
             where player.CustomProperties.ContainsKey(CustomGameManager.MOD_KEY)
-            select CreateParticipant(player)
+            select player
         );
-        return query.ToArray();
+        return query;
     }
 
     private Participant CreateParticipant(Player player)

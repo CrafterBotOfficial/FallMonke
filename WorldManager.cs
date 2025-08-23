@@ -107,20 +107,6 @@ public static class WorldManager
         return hexagonParent.Hexagons.IndexOfRef(hex);
     }
 
-    public static int GetRemainingTiles()
-    {
-        int result = 0;
-        if (hexagonParent != null)
-            foreach (var tile in hexagonParent.Hexagons)
-            {
-                if (!tile.IsFalling)
-                {
-                    result++;
-                }
-            }
-        return result;
-    }
-
     public static void ResetTiles()
     {
         foreach (var tile in hexagonParent.Hexagons)

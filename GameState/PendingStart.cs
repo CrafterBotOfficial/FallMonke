@@ -5,7 +5,6 @@ namespace FallMonke.GameState;
 
 public class PendingStart : IGameState
 {
-    private const int RequiredPlayerCount = 2;
     private static readonly TimeSpan GameOnCountdown = TimeSpan.FromSeconds(10);
 
     private bool countdown;
@@ -15,7 +14,7 @@ public class PendingStart : IGameState
     {
         var manager = (CustomGameManager)CustomGameManager.instance;
 
-        if (!countdown && CanStartGame(manager))
+        if (!countdown && manager.CanStartGame())
         {
             Main.Log("Start game countdown!");
             manager.NotificationHandler.ShowNotification("Game will start in " + GameOnCountdown);
@@ -25,7 +24,7 @@ public class PendingStart : IGameState
 
         if (countdown)
         {
-            if (!CanStartGame(manager))
+            if (!manager.CanStartGame())
             {
                 Main.Log("Game requirements no longer met, aborting timer");
                 manager.NotificationHandler.ShowNotification("Not enough players to start!");
@@ -50,11 +49,14 @@ public class PendingStart : IGameState
 
     public GameBoardText GetBoardText()
     {
+        var manager = (CustomGameManager)CustomGameManager.instance;
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine(string.Empty);
         stringBuilder.AppendLine(string.Empty);
-        if (NetworkSystem.Instance.AllNetPlayers.Length > 1)
-            if (((CustomGameManager)CustomGameManager.instance).StartButtonPressed)
+
+        bool enoughPlayers = manager.BroadcastController.PlayersWithModCount() >= CustomGameManager.REQUIRED_PLAYER_COUNT;
+        if (enoughPlayers)
+            if (manager.StartButtonPressed)
                 stringBuilder.AppendLine("Game will start in 30 seconds");
             else
                 stringBuilder.AppendLine("Ready to start");
@@ -62,10 +64,5 @@ public class PendingStart : IGameState
             stringBuilder.AppendLine("Not enough players");
 
         return new GameBoardText("Pending Game Start", stringBuilder);
-    }
-
-    public bool CanStartGame(CustomGameManager manager)
-    {
-        return NetworkSystem.Instance.AllNetPlayers.Length >= RequiredPlayerCount && ((CustomGameManager)CustomGameManager.instance).StartButtonPressed;
     }
 }
