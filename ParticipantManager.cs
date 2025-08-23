@@ -1,7 +1,7 @@
 using UnityEngine;
 using FallMonke.Hexagon;
 
-namespace FallMonke.GamePlayer;
+namespace FallMonke;
 
 public class ParticipantManager : MonoBehaviour
 {
@@ -64,9 +64,12 @@ public class ParticipantManager : MonoBehaviour
 
     private void OnTouchHexagon(CustomGameManager manager, FallableHexagon hexagon)
     {
-        Main.Log("Yeeting platform", BepInEx.Logging.LogLevel.Debug);
-        hexagon.Fall();
-        manager.BroadcastController.FallPlatform(hexagon);
+        if (!hexagon.IsFalling)
+        {
+            Main.Log("Yeeting platform", BepInEx.Logging.LogLevel.Debug);
+            hexagon.Fall();
+            manager.BroadcastController.FallPlatform(hexagon);
+        }
     }
 
     private bool TryRaycastToTerrain(Vector3 origin, float distance, out FallableHexagon hitPlatform)
