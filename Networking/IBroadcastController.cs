@@ -11,6 +11,7 @@ public interface IBroadcastController
     public void RequestStartGame();
 
     public Participant[] CreateParticipants();
+    public int PlayersWithModCount();
     public void MakeModIdentifable(); // not sure how this can be done with fusion
 
     public void Cleanup();
