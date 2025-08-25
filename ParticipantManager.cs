@@ -48,7 +48,7 @@ public class ParticipantManager : MonoBehaviour
             FallableHexagon hexagon;
 
             // body down raycast
-            if (TryRaycastToTerrain(Rig.transform.position, .5f, out hexagon))
+            if (TryRaycastToTerrain(Rig.transform.position, 1f, out hexagon))
             {
                 OnTouchHexagon(manager, hexagon);
                 return;
@@ -56,7 +56,7 @@ public class ParticipantManager : MonoBehaviour
 
             // hands - only if nothing under body
             foreach (var hand in rigHands)
-                if (TryRaycastToTerrain(hand.position, .05f, out hexagon))
+                if (TryRaycastToTerrain(hand.position, .1f, out hexagon))
                 {
                     OnTouchHexagon(manager, hexagon);
                 }
@@ -75,7 +75,7 @@ public class ParticipantManager : MonoBehaviour
 
     private bool TryRaycastToTerrain(Vector3 origin, float distance, out FallableHexagon hitPlatform)
     {
-        const float radius = 0.05f;
+        const float radius = 0.1f;
 
         bool hitSomething = Physics.SphereCast(origin + new Vector3(0f, .025f, 0f), radius, Vector3.down, out RaycastHit hit, distance, hexagonLayer);
         if (hitSomething && hit.transform.gameObject.TryGetComponent(out hitPlatform))

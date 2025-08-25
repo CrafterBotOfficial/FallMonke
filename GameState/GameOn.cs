@@ -7,6 +7,7 @@ public class GameOn : IGameState
     public GameStateEnum CheckGameState(GameStateDetails details)
     {
         var manager = (CustomGameManager)CustomGameManager.instance;
+
         if (details.RemainingPlayers == 1)
         {
             string winText = $"{GetWinner().Player.SanitizedNickName} wins!";

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using Photon.Realtime;
@@ -9,10 +10,13 @@ namespace FallMonke.Networking;
 public class PUNBroadcastController : IBroadcastController
 {
     private PUNEventHandler eventHandler;
+    private Player[] players;
 
     public void SetupEventHandler()
     {
         eventHandler = new PUNEventHandler();
+        NetworkSystem.Instance.OnPlayerJoined += OnJoin;
+        NetworkSystem.Instance.OnPlayerLeft += OnLeave;
     }
 
     public void FallPlatform(Hexagon.FallableHexagon tile)
@@ -64,10 +68,18 @@ public class PUNBroadcastController : IBroadcastController
 
     public int PlayersWithModCount()
     {
-        return GetPlayersQuery().Count();
+        return GetPlayers().Count();
     }
 
-    // todo: make a list that only changes when players leaves or joins
+    private Player[] GetPlayers()
+    {
+        if (players.IsNullOrEmpty())
+        {
+            players = GetPlayersQuery().ToArray();
+        }
+        return players;
+    }
+
     private IEnumerable<Player> GetPlayersQuery()
     {
         var query = (
@@ -95,8 +107,34 @@ public class PUNBroadcastController : IBroadcastController
         Photon.Pun.PhotonNetwork.SetPlayerCustomProperties(properties);
     }
 
+    public void OnJoin(NetPlayer player)
+    {
+        try
+        {
+            players = GetPlayersQuery().ToArray();
+        }
+        catch (Exception ex)
+        {
+            Main.Log(ex, BepInEx.Logging.LogLevel.Error);
+        }
+    }
+
+    public void OnLeave(NetPlayer leavePlayer)
+    {
+        try
+        {
+            players = GetPlayersQuery().ToArray();
+        }
+        catch (Exception ex)
+        {
+            Main.Log(ex, BepInEx.Logging.LogLevel.Error);
+        }
+    }
+
     public void Cleanup()
     {
+        NetworkSystem.Instance.OnPlayerJoined -= OnJoin;
+        NetworkSystem.Instance.OnPlayerLeft -= OnLeave;
         eventHandler.Dispose();
     }
 }

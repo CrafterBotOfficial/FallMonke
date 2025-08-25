@@ -4,27 +4,28 @@ public class StartGameRequestHandler : IEventHandler
 {
     public void OnEvent(NetPlayer sender, object data)
     {
-        if (CustomGameManager.instance is CustomGameManager manager)
+        if (CustomGameManager.instance is not CustomGameManager manager)
+            return;
+
+        if (manager.CurrentState != GameState.GameStateEnum.PendingStart)
         {
-            if (manager.CurrentState != GameState.GameStateEnum.PendingStart)
+            if (sender.IsLocal)
             {
-                if (sender.IsLocal)
-                {
-                    manager.NotificationHandler.ShowNotification("Please wait for this round to finish.");
-                }
-                return;
+                manager.NotificationHandler.ShowNotification("Please wait for this round to finish.");
             }
-            if (manager.StartButtonPressed)
-            {
-                if (sender.IsLocal)
-                {
-                    Main.Log("Calm tf down, its already pressed");
-                    manager.NotificationHandler.ShowNotification("Game start request already issued, take a chill pill.");
-                }
-                return;
-            }
-            manager.StartButtonPressed = true;
-            manager.NotificationHandler.ShowNotification($"{sender.SanitizedNickName} has pressed the start game button");
+            return;
         }
+
+        if (manager.StartButtonPressed)
+        {
+            if (sender.IsLocal)
+            {
+                Main.Log("Calm tf down, its already pressed");
+                manager.NotificationHandler.ShowNotification("Game start request already issued, take a chill pill.");
+            }
+            return;
+        }
+        manager.StartButtonPressed = true;
+        manager.NotificationHandler.ShowNotification($"{sender.SanitizedNickName} has pressed the start game button");
     }
 }
