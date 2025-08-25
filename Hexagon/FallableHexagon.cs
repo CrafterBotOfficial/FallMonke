@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Audio;
 using System.Collections;
 
 namespace FallMonke.Hexagon;
@@ -27,15 +26,17 @@ public class FallableHexagon : MonoBehaviour
 
     public void Reset()
     {
-        try { StopCoroutine(FallingCorountine()); } catch (System.Exception ex) { Main.Log($"Failed to stop tile from falling during reset: {ex}", BepInEx.Logging.LogLevel.Warning); }
+        StopAllCoroutines();
         gameObject.SetActive(true);
         TileAnimation(down: false);
         IsFalling = false;
         renderer.material.color = originalColor;
     }
 
-    private void TileAnimation(bool down) =>
+    private void TileAnimation(bool down)
+    {
         GetComponent<Animator>().SetBool("TileDown", down);
+    }
 
     private IEnumerator FallingCorountine()
     {

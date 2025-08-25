@@ -25,10 +25,11 @@ public static class TeleportController
             return;
 
         UnityEngine.Random.InitState(seed);
-        Transform[] spawnPoints = GameObject.Find("/SpawnPoints")
-                                          .GetComponentsInChildren<Transform>()
-                                          .ToList()
-                                          .ToArray();
+        Transform[] spawnPoints = WorldManager.GetParent()
+                                              .Find("/SpawnPoints")
+                                              .GetComponentsInChildren<Transform>()
+                                              .ToList()
+                                              .ToArray();
         FisherYatesShuffle(spawnPoints);
 
         var players = NetworkSystem.Instance.AllNetPlayers.OrderBy(x => x.ActorNumber).ToArray();

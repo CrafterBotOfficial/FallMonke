@@ -48,7 +48,7 @@ public class CustomGameManager : GorillaGameManager
     {
         base.StartPlaying();
         Main.Log("CustomGameManager starting!", BepInEx.Logging.LogLevel.Message);
-        WorldManager.LoadWorld();
+        WorldManager.ActivateWorld();
 
         StartButtonPressed = false;
 
@@ -69,12 +69,14 @@ public class CustomGameManager : GorillaGameManager
             CurrentState = GameStateEnum.PendingStart;
             CurrentStateHandler = StateHandlers[CurrentState];
         }
+
+        TeleportController.TeleportToLobby();
     }
 
     public override void StopPlaying()
     {
         base.StopPlaying();
-        WorldManager.UnloadWorld();
+        WorldManager.DeactivateWorld();
         BroadcastController.Cleanup();
         TeleportController.TeleportToStump();
     }
@@ -103,6 +105,13 @@ public class CustomGameManager : GorillaGameManager
         UpdateBoard();
         if (NetworkSystem.Instance.IsMasterClient)
         {
+            if (CurrentStateHandler == null)
+            {
+                Main.Log("State handler is null, maybe I became master prior to start?", BepInEx.Logging.LogLevel.Warning);
+                if (CurrentState == 0) HandleStateSwitch(GameStateEnum.PendingStart);
+                else HandleStateSwitch(CurrentState);
+            }
+
             var details = new GameStateDetails
             {
                 RemainingPlayers = Players == null ? -1 : Players.Count(player => player.IsAlive),
