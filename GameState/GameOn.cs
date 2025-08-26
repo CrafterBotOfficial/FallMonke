@@ -40,12 +40,13 @@ public class GameOn : IGameState
             manager.BroadcastController.SendRandomSeed(seed);
         }
 
-        // test code - lets see if this feels good or not
         manager.CooldownInAffect = true;
+        manager.SetPlayerSpeeds(canMove: false);
         new System.Threading.Thread(async () =>
         {
             await System.Threading.Tasks.Task.Delay(3000);
             manager.CooldownInAffect = false;
+            manager.SetPlayerSpeeds(canMove: true);
         }).Start();
     }
 
