@@ -25,10 +25,11 @@ public static class TeleportController
             return;
 
         UnityEngine.Random.InitState(seed);
-        Transform[] spawnPoints = GameObject.Find("/SpawnPoints")
-                                          .GetComponentsInChildren<Transform>()
-                                          .ToList()
-                                          .ToArray();
+        Transform[] spawnPoints = WorldManager.GetParent()
+                                              .Find("/SpawnPoints")
+                                              .GetComponentsInChildren<Transform>()
+                                              .ToList()
+                                              .ToArray();
         FisherYatesShuffle(spawnPoints);
 
         var players = NetworkSystem.Instance.AllNetPlayers.OrderBy(x => x.ActorNumber).ToArray();
@@ -60,15 +61,15 @@ public static class TeleportController
     }
 
     // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-    private static void FisherYatesShuffle(Transform[] positions)
+    public static void FisherYatesShuffle(object[] items)
     {
-        int n = positions.Length;
+        int n = items.Length;
         for (int i = n - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);
-            Transform temp = positions[i];
-            positions[i] = positions[j];
-            positions[j] = temp;
+            object temp = items[i];
+            items[i] = items[j];
+            items[j] = temp;
         }
     }
 }

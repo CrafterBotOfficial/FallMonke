@@ -1,8 +1,5 @@
 /*
-If a player joins late we should just ignore them, partipants are set when the game starts
 Should remove all references to PUN as it seems it will be removed in future updates, should rely on the FallMonke.Networking and NetworkSystems instead
-
-fyi: If someone doesn't have the mod it won't break anything, it just wont create the gamemode stuff on there client and will log warnings about the gamemanager being null. So no risk of breaking other clients or reports
 */
 
 using FallMonke.GameState;
@@ -28,7 +25,6 @@ public class CustomGameManager : GorillaGameManager
     public IGameState CurrentStateHandler;
 
     public Participant[] Players;
-    public int[] ParticipantActorNumbers;
     public Participant LocalPlayer;
 
     public bool StartButtonPressed;
@@ -37,10 +33,7 @@ public class CustomGameManager : GorillaGameManager
     public override void Awake()
     {
         base.Awake();
-        slowJumpLimit = 6.5f;
-        fastJumpLimit = 8.5f;
-        slowJumpMultiplier = 1.1f;
-        fastJumpMultiplier = 1.3f;
+        SetPlayerSpeeds(canMove: true);
     }
 
     // this is called when the gamemode serializer is made 
@@ -48,18 +41,13 @@ public class CustomGameManager : GorillaGameManager
     {
         base.StartPlaying();
         Main.Log("CustomGameManager starting!", BepInEx.Logging.LogLevel.Message);
-        WorldManager.LoadWorld();
+        WorldManager.ActivateWorld();
 
         StartButtonPressed = false;
 
         NotificationHandler = new NotificationSystem.MonkeNotificationLibWrapper();
-        // #if DEBUG
-        //         NotificationHandler = new NotificationSystem.DebugNotificationHandler();
-        // #else
-        //         // todo
-        // #endif
 
-        BroadcastController = new Networking.PUNBroadcastController();  // todo: ideally make this only happen if PUN is nolonger an option
+        BroadcastController = new Networking.PUNBroadcastController();
         BroadcastController.MakeModIdentifable();
         BroadcastController.SetupEventHandler();
 
@@ -74,7 +62,7 @@ public class CustomGameManager : GorillaGameManager
     public override void StopPlaying()
     {
         base.StopPlaying();
-        WorldManager.UnloadWorld();
+        WorldManager.DeactivateWorld();
         BroadcastController.Cleanup();
         TeleportController.TeleportToStump();
     }
@@ -82,7 +70,6 @@ public class CustomGameManager : GorillaGameManager
     public void CreateParticipants()
     {
         Players = BroadcastController.CreateParticipants();
-        ParticipantActorNumbers = ((CustomGameManager)CustomGameManager.instance).Players.Select(player => player.Player.ActorNumber).ToArray();
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
@@ -96,6 +83,24 @@ public class CustomGameManager : GorillaGameManager
         }
     }
 
+    public void SetPlayerSpeeds(bool canMove)
+    {
+        if (canMove)
+        {
+            slowJumpLimit = 6.5f;
+            fastJumpLimit = 8.5f;
+            slowJumpMultiplier = 1.1f;
+            fastJumpMultiplier = 1.3f;
+        }
+        else
+        {
+            slowJumpLimit = 0f;
+            fastJumpLimit = 0f;
+            slowJumpMultiplier = 0f;
+            fastJumpMultiplier = 0f;
+        }
+    }
+
     // todo: must be called right after player is eliminated to ensure Players.Count != 0 never ever
     public override void InfrequentUpdate()
     {
@@ -103,6 +108,13 @@ public class CustomGameManager : GorillaGameManager
         UpdateBoard();
         if (NetworkSystem.Instance.IsMasterClient)
         {
+            if (CurrentStateHandler == null)
+            {
+                Main.Log("State handler is null, maybe I became master prior to start?", BepInEx.Logging.LogLevel.Warning);
+                if (CurrentState == 0) HandleStateSwitch(GameStateEnum.PendingStart);
+                else HandleStateSwitch(CurrentState);
+            }
+
             var details = new GameStateDetails
             {
                 RemainingPlayers = Players == null ? -1 : Players.Count(player => player.IsAlive),
@@ -146,7 +158,6 @@ public class CustomGameManager : GorillaGameManager
             return;
         }
         stream.SendNext(CurrentState);
-        // stream.SendNext(StartButtonPressed);
     }
 
     public override void OnSerializeRead(PhotonStream stream, PhotonMessageInfo info)
@@ -159,8 +170,7 @@ public class CustomGameManager : GorillaGameManager
             Main.Log("Got new state " + state);
             HandleStateSwitch((GameStateEnum)state);
         }
-
-        // StartButtonPressed = (bool)stream.ReceiveNext(); // incase player joins lobby late, but probably overkill since its unlikely they will become the master then
+        else Main.Log("Bad game state " + state, BepInEx.Logging.LogLevel.Warning);
     }
 
     public override void AddFusionDataBehaviour(NetworkObject netObject) {/* netObject.AddBehaviour<TagGameModeData>(); */}

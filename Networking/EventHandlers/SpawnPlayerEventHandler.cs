@@ -4,9 +4,9 @@ public class SpawnPlayerEventHandler : IEventHandler
 {
     public void OnEvent(NetPlayer sender, object data)
     {
-        if (sender.IsMasterClient && data is int random)
+        if (sender.IsMasterClient && data is int seed)
         {
-            TeleportController.TeleportToGame(random);
+            TeleportController.TeleportToGame(seed);
             return;
         }
         Main.Log("Bad event", BepInEx.Logging.LogLevel.Warning);
