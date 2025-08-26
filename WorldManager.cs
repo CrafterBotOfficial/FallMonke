@@ -1,5 +1,6 @@
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -26,7 +27,7 @@ public static class WorldManager
             LoadWorld();
             while (!sceneLoaded)
             {
-                await System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
             }
         }
         SetWorldActive(true);
@@ -121,11 +122,18 @@ public static class WorldManager
         return hexagonParent.Hexagons.IndexOfRef(hex);
     }
 
-    public static void ResetTiles()
+    public static async void ResetTiles()
     {
-        var tiles = hexagonParent.Hexagons.Where(x => x.IsFalling);
+        var tiles = hexagonParent.Hexagons.Where(x => x.IsFalling).ToArray();
+        TeleportController.FisherYatesShuffle(tiles);  // the random seed should still be synced between players
+        int delay = 5000 / tiles.Length;
+
         foreach (var tile in tiles)
+        {
             tile.Reset();
+            await Task.Delay(delay);
+        }
+        Main.Log("Finished resetting tiles");
     }
 
     public static Transform GetParent()
