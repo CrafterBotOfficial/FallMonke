@@ -1,5 +1,5 @@
-// this is just testing code, once the scene is ready we will load it ontop of the normal world. It will contain all of the assets and decorations and hexagons
-
+using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,82 +12,88 @@ public static class WorldManager
 {
     private static bool sceneLoaded;
 
-    public static AssetLoader AssetLoader;
+    private static GameObject sceneParent;
     private static HexagonParent hexagonParent;
+
     public static float EliminationHeight;
 
     public static TMP_FontAsset GorillaTextFont;
     private static TextMeshPro boardText;
 
-    public static void SetBoardText(string header, System.Text.StringBuilder stringBuilder)
+    public static async void ActivateWorld()
     {
-        if (boardText == null)
+        if (!sceneLoaded)
         {
-            Main.Log(stringBuilder, BepInEx.Logging.LogLevel.Warning);
-            return;
+            LoadWorld();
+            while (!sceneLoaded)
+            {
+                await Task.Yield();
+            }
         }
-        var headerBuilder = new System.Text.StringBuilder();
-        headerBuilder.AppendLine(header);
-        headerBuilder.AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - -");
-        boardText.text = headerBuilder.Append(stringBuilder).ToString();
+        SetWorldActive(true);
+        TeleportController.TeleportToLobby();
     }
 
-    public static async void LoadWorld()
+    public static void DeactivateWorld()
     {
-        while (sceneLoaded) // sometimes the scene wont unload in a timely enough fashion and then it will laod another ontop of it.
+        SetWorldActive(false);
+    }
+
+    private static void SetWorldActive(bool active)
+    {
+        if (sceneParent != null)
         {
-            await Task.Yield();
+            sceneParent.SetActive(active);
+            return;
         }
+        Main.Log("World is null", BepInEx.Logging.LogLevel.Error);
+    }
+
+    public static void LoadWorld()
+    {
         Main.Log("Loading game scene!", BepInEx.Logging.LogLevel.Message);
 
-        if (!NetworkSystem.Instance.InRoom)
-        {
-            Main.Log("Player left prior to scene loading.");
-            WorldManager.UnloadWorld();
-            return;
-        }
+        Stream assetReaderStream = typeof(Main).Assembly.GetManifestResourceStream("FallMonke.Resources.hexagone");
+        // var bundle = AssetBundle.LoadFromStream(assetReaderStream);
+        var bundleCreateRequest = AssetBundle.LoadFromStreamAsync(assetReaderStream);
 
-        // var sceneName = AssetLoader.GetSceneName();
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);
-        sceneLoaded = true;
-    }
-
-    public static void UnloadWorld()
-    {
-        Main.Log("Removing world");
-        var operation = SceneManager.UnloadSceneAsync("Crafterbot");
-        operation.completed += _ =>
+        bundleCreateRequest.completed += _ =>
         {
-            Main.Log("Scene finished unloading");
-            sceneLoaded = false;
+            Main.Log(bundleCreateRequest.assetBundle.GetAllScenePaths());
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);
+            assetReaderStream.Dispose();
         };
     }
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Main.Log("Scene loaded", BepInEx.Logging.LogLevel.Message);
         if (scene.name != "Crafterbot")
             return;
+        Main.Log("Scene loaded", BepInEx.Logging.LogLevel.Message);
+
+        sceneParent = scene.GetRootGameObjects()[0]; //GameObject.Find("/SceneParent");
 
         hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
-        ((CustomGameManager)CustomGameManager.instance).NotificationHandler.Setup();
         Main.Log(hexagonParent.Hexagons.Length + " tiles");
-
-        SetupButtons();
-
-        GameObject.Find("room").AddComponent<GorillaSurfaceOverride>().transform.GetChild(0).AddComponent<GorillaSurfaceOverride>().overrideIndex = 120;
-
-        EliminationHeight = GameObject.Find("/WaterVRview").transform.position.y;
 
         GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
 
+        SetupButtons();
+
+        sceneParent.transform.Find("/room").AddComponent<GorillaSurfaceOverride>().transform
+            .GetChild(0)
+            .AddComponent<GorillaSurfaceOverride>().overrideIndex = 120; // for the glass sounds
+
+        EliminationHeight = sceneParent.transform.Find("/WaterVRview").transform.position.y;
+
         // setup board
-        boardText = GameObject.Find("/TextComponents/TextHeader").GetComponent<TextMeshPro>();
+        boardText = sceneParent.transform.Find("/TextComponents/TextHeader").GetComponent<TextMeshPro>();
         boardText.font = GorillaTextFont;
         boardText.text = string.Empty;
 
-        TeleportController.TeleportToLobby();
+        sceneParent.SetActive(false);
+        sceneLoaded = true;
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
@@ -97,9 +103,9 @@ public static class WorldManager
         var leaveButton = GameObject.Find("FallMonke Buttons/Leave");
         var streamerModeButton = GameObject.Find("FallMonke Buttons/Streamer");
 
-        startGameButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
-        leaveButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
-        streamerModeButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+        startGameButton.GetComponentInChildren<TMP_Text>().font = GorillaTextFont;
+        leaveButton.GetComponentInChildren<TMP_Text>().font = GorillaTextFont;
+        streamerModeButton.GetComponentInChildren<TMP_Text>().font = GorillaTextFont;
 
         startGameButton.AddComponent<UI.Buttons.StartGameButton>();
         leaveButton.AddComponent<UI.Buttons.LeaveGameButton>();
@@ -116,9 +122,40 @@ public static class WorldManager
         return hexagonParent.Hexagons.IndexOfRef(hex);
     }
 
-    public static void ResetTiles()
+    public static async void ResetTiles()
     {
-        foreach (var tile in hexagonParent.Hexagons)
+        var tiles = hexagonParent.Hexagons.Where(x => x.IsFalling).ToArray();
+        TeleportController.FisherYatesShuffle(tiles);  // the random seed should still be synced between players
+        int delay = 5000 / tiles.Length;
+
+        foreach (var tile in tiles)
+        {
             tile.Reset();
+            await Task.Delay(delay);
+        }
+        Main.Log("Finished resetting tiles");
+    }
+
+    public static Transform GetParent()
+    {
+        if (sceneParent == null)
+        {
+            Main.Log("Scene not loaded yet trying to play game.", BepInEx.Logging.LogLevel.Fatal);
+            return null;
+        }
+        return sceneParent.transform;
+    }
+
+    public static void SetBoardText(string header, System.Text.StringBuilder stringBuilder)
+    {
+        if (boardText == null)
+        {
+            Main.Log(stringBuilder, BepInEx.Logging.LogLevel.Warning);
+            return;
+        }
+        var headerBuilder = new System.Text.StringBuilder();
+        headerBuilder.AppendLine(header);
+        headerBuilder.AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - -");
+        boardText.text = headerBuilder.Append(stringBuilder).ToString();
     }
 }

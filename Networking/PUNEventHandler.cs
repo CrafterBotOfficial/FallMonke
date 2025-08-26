@@ -22,7 +22,6 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
         PhotonNetwork.AddCallbackTarget(this);
     }
 
-    // ~PUNEventHandler()
     public void Dispose()
     {
         Main.Log("Left game, cleaning up event handler");
@@ -33,11 +32,13 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
     {
         try
         {
-            if (CustomGameManager.instance is not CustomGameManager) return;
-            if (eventHandlers.TryGetValue((EventCodesEnum)photonEvent.Code, out IEventHandler handler))
+            if (CustomGameManager.instance is CustomGameManager)
             {
-                NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
-                handler.OnEvent(player, photonEvent.CustomData);
+                if (eventHandlers.TryGetValue((EventCodesEnum)photonEvent.Code, out IEventHandler handler))
+                {
+                    NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
+                    handler.OnEvent(player, photonEvent.CustomData);
+                }
             }
         }
         catch (Exception ex)

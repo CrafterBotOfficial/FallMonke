@@ -24,12 +24,12 @@ public class Finished : IGameState
         manager.NotificationHandler.ShowNotification("Getting ready for next game...");
         switchTime = DateTime.Now + TimeSpan.FromSeconds(5); // a janky way to ensure all clients switch to finished so they cleanup.
 
-        foreach (var player in manager.Players)
-        {
-            UnityEngine.Object.Destroy(player.Manager);
-        }
+        if (!manager.Players.IsNullOrEmpty())
+            foreach (var player in manager.Players)
+            {
+                UnityEngine.Object.Destroy(player.Manager);
+            }
 
-        WorldManager.ResetTiles();
         TeleportController.TeleportToLobby();
 
         // play gtag game over sound
@@ -38,6 +38,6 @@ public class Finished : IGameState
 
     public GameBoardText GetBoardText()
     {
-        return new GameBoardText("Loading", new("Loading"));
+        return new GameBoardText("Loading", new("Game over grace period."));
     }
 }
