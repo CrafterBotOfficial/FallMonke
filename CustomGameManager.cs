@@ -47,7 +47,7 @@ public class CustomGameManager : GorillaGameManager
 
         NotificationHandler = new NotificationSystem.MonkeNotificationLibWrapper();
 
-        BroadcastController = new Networking.PUNBroadcastController();  // todo: ideally make this only happen if PUN is nolonger an option
+        BroadcastController = new Networking.PUNBroadcastController();
         BroadcastController.MakeModIdentifable();
         BroadcastController.SetupEventHandler();
 
@@ -57,8 +57,6 @@ public class CustomGameManager : GorillaGameManager
             CurrentState = GameStateEnum.PendingStart;
             CurrentStateHandler = StateHandlers[CurrentState];
         }
-
-        TeleportController.TeleportToLobby();
     }
 
     public override void StopPlaying()

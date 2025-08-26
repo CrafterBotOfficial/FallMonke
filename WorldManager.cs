@@ -24,6 +24,7 @@ public static class WorldManager
             await System.Threading.Tasks.Task.Yield();
         }
         SetWorldActive(true);
+        TeleportController.TeleportToLobby();
     }
 
     public static void DeactivateWorld()
