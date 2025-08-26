@@ -4,7 +4,7 @@ using Utilla.Attributes;
 
 namespace FallMonke;
 
-[BepInPlugin("com.crafterbot.monkefall", "Fall Monke", "1.0.1")]
+[BepInPlugin("com.crafterbot.monkefall", "Fall Monke", "1.1.0")]
 [BepInDependency("org.legoandmars.gorillatag.utilla", "1.6.0"), BepInDependency("crafterbot.notificationlib")]
 [ModdedGamemode("FALLMONKE", "FALL MONKE", typeof(CustomGameManager))]
 public class Main : BaseUnityPlugin
