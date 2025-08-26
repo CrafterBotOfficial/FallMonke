@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/CrafterBotOfficial/FallMonke/blob/master/Marketing/HowToPlay.gif?raw=true" alt="GorillaHands thumbnail" img width="auto" height="auto">
+  <img src="https://github.com/CrafterBotOfficial/FallMonke/blob/master/Marketing/HowToPlay.gif?raw=true" alt="FallMonke thumbnail" img width="auto" height="auto">
 </p>
 
 ---
@@ -16,6 +16,6 @@
 
 
 ## Legal
-Usage of MonkeFall is at own risk.
+Usage of FallMonke is at own risk.
 
 This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom. Portions of the materials contained herein are property of Another Axiom. Â©2021 Another Axiom Inc. - https://www.anotheraxiom.com/fan-content-and-mod-policy
