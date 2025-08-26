@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using Utilla.Attributes;
-using UnityEngine;
 
 namespace FallMonke;
 
@@ -22,7 +21,6 @@ public class Main : BaseUnityPlugin
 
             HarmonyLib.Harmony.CreateAndPatchAll(typeof(Main).Assembly);
             TeleportController.CreateStumpAnchor();
-            WorldManager.LoadWorld();
         };
     }
 

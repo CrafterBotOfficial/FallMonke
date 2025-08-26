@@ -9,6 +9,8 @@ namespace FallMonke;
 
 public static class WorldManager
 {
+    private static bool sceneLoaded;
+
     private static GameObject sceneParent;
     private static HexagonParent hexagonParent;
 
@@ -19,9 +21,13 @@ public static class WorldManager
 
     public static async void ActivateWorld()
     {
-        while (sceneParent == null)
+        if (!sceneLoaded)
         {
-            await System.Threading.Tasks.Task.Yield();
+            LoadWorld();
+            while (!sceneLoaded)
+            {
+                await System.Threading.Tasks.Task.Yield();
+            }
         }
         SetWorldActive(true);
         TeleportController.TeleportToLobby();
@@ -73,7 +79,6 @@ public static class WorldManager
         GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
 
         SetupButtons();
-        SetupSurfaces();
 
         sceneParent.transform.Find("/room").AddComponent<GorillaSurfaceOverride>().transform
             .GetChild(0)
@@ -87,6 +92,7 @@ public static class WorldManager
         boardText.text = string.Empty;
 
         sceneParent.SetActive(false);
+        sceneLoaded = true;
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
@@ -103,17 +109,6 @@ public static class WorldManager
         startGameButton.AddComponent<UI.Buttons.StartGameButton>();
         leaveButton.AddComponent<UI.Buttons.LeaveGameButton>();
         streamerModeButton.AddComponent<UI.Buttons.StreamerModeButton>();
-    }
-
-    private static void SetupSurfaces()
-    {
-        Main.Log("Applying surfaces");
-
-        foreach (Collider surface in sceneParent.GetComponentsInChildren<Collider>())
-        {
-            var gorillaSurface = surface.AddComponent<GorillaSurfaceOverride>();
-            // gorillaSurface.overrideIndex = 
-        }
     }
 
     public static FallableHexagon GetTileByIndex(int index)
