@@ -72,7 +72,7 @@ public class PUNBroadcastController : IBroadcastController
 
     private Player[] GetPlayers()
     {
-        if (players.IsNullOrEmpty())
+        if (players.IsNullOrEmpty() || players.Length == 1)
         {
             players = GetPlayersQuery().ToArray();
         }

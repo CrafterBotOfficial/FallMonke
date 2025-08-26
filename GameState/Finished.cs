@@ -30,7 +30,6 @@ public class Finished : IGameState
                 UnityEngine.Object.Destroy(player.Manager);
             }
 
-        WorldManager.ResetTiles();
         TeleportController.TeleportToLobby();
 
         // play gtag game over sound
