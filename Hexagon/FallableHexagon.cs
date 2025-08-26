@@ -16,6 +16,11 @@ public class FallableHexagon : MonoBehaviour
         originalColor = renderer.material.color;
     }
 
+    private void Start()
+    {
+        gameObject.AddComponent<GorillaSurfaceOverride>().overrideIndex = 93;
+    }
+
     public void Fall()
     {
         if (!IsFalling)
