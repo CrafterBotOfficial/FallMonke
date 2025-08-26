@@ -1,6 +1,5 @@
 using System.Linq;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -18,8 +17,12 @@ public static class WorldManager
     public static TMP_FontAsset GorillaTextFont;
     private static TextMeshPro boardText;
 
-    public static void ActivateWorld()
+    public static async void ActivateWorld()
     {
+        while (sceneParent == null)
+        {
+            await System.Threading.Tasks.Task.Yield();
+        }
         SetWorldActive(true);
     }
 
@@ -61,10 +64,12 @@ public static class WorldManager
             return;
         Main.Log("Scene loaded", BepInEx.Logging.LogLevel.Message);
 
-        sceneParent = scene.GetRootGameObjects()[0];
+        sceneParent = scene.GetRootGameObjects()[0]; //GameObject.Find("/SceneParent");
 
         hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
         Main.Log(hexagonParent.Hexagons.Length + " tiles");
+
+        GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
 
         SetupButtons();
         SetupSurfaces();
@@ -74,8 +79,6 @@ public static class WorldManager
             .AddComponent<GorillaSurfaceOverride>().overrideIndex = 120; // for the glass sounds
 
         EliminationHeight = sceneParent.transform.Find("/WaterVRview").transform.position.y;
-
-        GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
 
         // setup board
         boardText = sceneParent.transform.Find("/TextComponents/TextHeader").GetComponent<TextMeshPro>();
@@ -88,13 +91,13 @@ public static class WorldManager
 
     private static void SetupButtons()
     {
-        var startGameButton = sceneParent.transform.Find("/FallMonke Buttons/Start");
-        var leaveButton = sceneParent.transform.Find("/FallMonke Buttons/Leave");
-        var streamerModeButton = sceneParent.transform.Find("/FallMonke Buttons/Streamer");
+        var startGameButton = GameObject.Find("FallMonke Buttons/Start");
+        var leaveButton = GameObject.Find("FallMonke Buttons/Leave");
+        var streamerModeButton = GameObject.Find("FallMonke Buttons/Streamer");
 
-        startGameButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
-        leaveButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
-        streamerModeButton.GetComponentInChildren<TMP_Text>().font = GorillaTagger.Instance.offlineVRRig.playerText1.font;
+        startGameButton.GetComponentInChildren<TMP_Text>().font = GorillaTextFont;
+        leaveButton.GetComponentInChildren<TMP_Text>().font = GorillaTextFont;
+        streamerModeButton.GetComponentInChildren<TMP_Text>().font = GorillaTextFont;
 
         startGameButton.AddComponent<UI.Buttons.StartGameButton>();
         leaveButton.AddComponent<UI.Buttons.LeaveGameButton>();
@@ -103,15 +106,10 @@ public static class WorldManager
 
     private static void SetupSurfaces()
     {
-        Main.Log("Applying slow movement surface to spawnpoints");
-        foreach (Transform tile in sceneParent.transform.Find("/Hexagons/StartingPoints"))
-        {
-            var surface = tile.AddComponent<GorillaSurfaceOverride>();
-            surface.extraVelMultiplier = .25f;
-            surface.extraVelMaxMultiplier = .25f;
-        }
+        Main.Log("Applying surfaces");
 
-        foreach (Collider surface in sceneParent.GetComponentsInChildren<Collider>().Where(x => x.GetComponent<FallableHexagon>() == null)) {
+        foreach (Collider surface in sceneParent.GetComponentsInChildren<Collider>())
+        {
             var gorillaSurface = surface.AddComponent<GorillaSurfaceOverride>();
             // gorillaSurface.overrideIndex = 
         }

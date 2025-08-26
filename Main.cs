@@ -26,13 +26,6 @@ public class Main : BaseUnityPlugin
         };
     }
 
-#if DEBUG
-    public void OnGUI()
-    {
-        GUILayout.BeginVertical();
-        if (GUILayout.Button("Quit")) UnityEngine.Application.Quit();
-    }
-#endif
     public static void Log(object message, LogLevel level = LogLevel.Info)
     {
         instance?.Logger.Log(level, message);

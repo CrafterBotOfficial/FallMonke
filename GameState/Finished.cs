@@ -39,6 +39,6 @@ public class Finished : IGameState
 
     public GameBoardText GetBoardText()
     {
-        return new GameBoardText("Loading", new("Loading"));
+        return new GameBoardText("Loading", new("Game over grace period."));
     }
 }
