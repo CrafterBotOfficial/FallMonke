@@ -45,7 +45,7 @@ public class PendingStart : IGameState
     public void OnSwitchTo()
     {
         countdown = false;
-        WorldManager.ResetTiles();
+        WorldManager.Instance.ResetTiles();
     }
 
     public GameBoardText GetBoardText()

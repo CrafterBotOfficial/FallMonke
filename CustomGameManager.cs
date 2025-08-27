@@ -41,7 +41,7 @@ public class CustomGameManager : GorillaGameManager
     {
         base.StartPlaying();
         Main.Log("CustomGameManager starting!", BepInEx.Logging.LogLevel.Message);
-        WorldManager.ActivateWorld();
+        WorldManager.Instance.ActivateWorld();
 
         StartButtonPressed = false;
 
@@ -62,7 +62,7 @@ public class CustomGameManager : GorillaGameManager
     public override void StopPlaying()
     {
         base.StopPlaying();
-        WorldManager.DeactivateWorld();
+        WorldManager.Instance.DeactivateWorld();
         BroadcastController.Cleanup();
         TeleportController.TeleportToStump();
     }
@@ -79,7 +79,7 @@ public class CustomGameManager : GorillaGameManager
         if (CurrentStateHandler != null)
         {
             var text = CurrentStateHandler.GetBoardText();
-            WorldManager.SetBoardText(text.Title, text.Body);
+            WorldManager.Instance.SetBoardText(text.Title, text.Body);
         }
     }
 

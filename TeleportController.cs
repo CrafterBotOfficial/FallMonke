@@ -9,7 +9,7 @@ public static class TeleportController
 
     public static void CreateStumpAnchor()
     {
-        Vector3 position = new Vector3(-67, 13, -82); // todo: make more precise, should be perfect center
+        Vector3 position = new Vector3(-66.6f, 11.5f, -80.6f);
         stumpSpawnpoint = new GameObject().transform;
         stumpSpawnpoint.position = position;
     }
@@ -25,11 +25,11 @@ public static class TeleportController
             return;
 
         UnityEngine.Random.InitState(seed);
-        Transform[] spawnPoints = WorldManager.GetParent()
-                                              .Find("/SpawnPoints")
-                                              .GetComponentsInChildren<Transform>()
-                                              .ToList()
-                                              .ToArray();
+        Transform[] spawnPoints = WorldManager.Instance.GetParent()
+                                                       .Find("/SpawnPoints")
+                                                       .GetComponentsInChildren<Transform>()
+                                                       .ToList()
+                                                       .ToArray();
         FisherYatesShuffle(spawnPoints);
 
         var players = NetworkSystem.Instance.AllNetPlayers.OrderBy(x => x.ActorNumber).ToArray();

@@ -21,7 +21,7 @@ public class PUNBroadcastController : IBroadcastController
 
     public void FallPlatform(Hexagon.FallableHexagon tile)
     {
-        int tileIndex = WorldManager.GetTileIndex(tile);
+        int tileIndex = WorldManager.Instance.GetTileIndex(tile);
 
         var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others, /* TargetActors = targets */ };
         PhotonNetwork.RaiseEvent((byte)EventCodesEnum.FALL_TILE,
