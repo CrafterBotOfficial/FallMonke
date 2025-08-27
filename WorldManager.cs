@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,38 +9,53 @@ using FallMonke.Hexagon;
 
 namespace FallMonke;
 
-public static class WorldManager
+public sealed class WorldManager
 {
-    private static bool sceneLoaded;
+    private static object padLock = new object();
 
-    private static GameObject sceneParent;
-    private static HexagonParent hexagonParent;
+    private static readonly Lazy<WorldManager> instance = new Lazy<WorldManager>(() => new WorldManager());
+    public static WorldManager Instance { get { return instance.Value; } }
 
-    public static float EliminationHeight;
+    private bool sceneLoaded;
 
-    public static TMP_FontAsset GorillaTextFont;
-    private static TextMeshPro boardText;
+    private GameObject sceneParent;
+    private HexagonParent hexagonParent;
 
-    public static async void ActivateWorld()
+    public float EliminationHeight;
+
+    public TMP_FontAsset GorillaTextFont;
+    private TextMeshPro boardText;
+
+    private WorldManager()
+    {
+    }
+
+    public async void ActivateWorld()
     {
         if (!sceneLoaded)
         {
-            LoadWorld();
-            while (!sceneLoaded)
+            Task task = null;
+            lock (padLock)
             {
-                await Task.Yield();
+                if (!sceneLoaded)
+                {
+                    task = LoadWorld();
+                }
             }
+            if (task != null)
+                await task;
         }
+
         SetWorldActive(true);
         TeleportController.TeleportToLobby();
     }
 
-    public static void DeactivateWorld()
+    public void DeactivateWorld()
     {
         SetWorldActive(false);
     }
 
-    private static void SetWorldActive(bool active)
+    private void SetWorldActive(bool active)
     {
         if (sceneParent != null)
         {
@@ -49,30 +65,45 @@ public static class WorldManager
         Main.Log("World is null", BepInEx.Logging.LogLevel.Error);
     }
 
-    public static void LoadWorld()
+    public Task LoadWorld()
     {
         Main.Log("Loading game scene!", BepInEx.Logging.LogLevel.Message);
 
-        Stream assetReaderStream = typeof(Main).Assembly.GetManifestResourceStream("FallMonke.Resources.hexagone");
-        // var bundle = AssetBundle.LoadFromStream(assetReaderStream);
-        var bundleCreateRequest = AssetBundle.LoadFromStreamAsync(assetReaderStream);
+        var taskCompletionSource = new TaskCompletionSource<object>();
 
+        Stream assetReaderStream = typeof(Main).Assembly.GetManifestResourceStream("FallMonke.Resources.hexagone");
+        var bundleCreateRequest = AssetBundle.LoadFromStreamAsync(assetReaderStream);
         bundleCreateRequest.completed += _ =>
         {
             Main.Log(bundleCreateRequest.assetBundle.GetAllScenePaths());
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);
             assetReaderStream.Dispose();
+
+            var loadSceneOperation = SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);
+            loadSceneOperation.completed += _ =>
+            {
+                try
+                {
+                    OnSceneLoaded();
+                }
+                catch (Exception ex)
+                {
+                    Main.Log("Failed to setup scene: " + ex, BepInEx.Logging.LogLevel.Fatal);
+                }
+                finally
+                {
+                    taskCompletionSource.SetResult(null);
+                }
+            };
         };
+
+        return taskCompletionSource.Task;
     }
 
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void OnSceneLoaded()
     {
-        if (scene.name != "Crafterbot")
-            return;
         Main.Log("Scene loaded", BepInEx.Logging.LogLevel.Message);
 
-        sceneParent = scene.GetRootGameObjects()[0]; //GameObject.Find("/SceneParent");
+        sceneParent = SceneManager.GetSceneByName("Crafterbot").GetRootGameObjects()[0]; // GameObject.Find("/SceneParent");
 
         hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
         Main.Log(hexagonParent.Hexagons.Length + " tiles");
@@ -94,10 +125,9 @@ public static class WorldManager
 
         sceneParent.SetActive(false);
         sceneLoaded = true;
-        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    private static void SetupButtons()
+    private void SetupButtons()
     {
         var startGameButton = GameObject.Find("FallMonke Buttons/Start");
         var leaveButton = GameObject.Find("FallMonke Buttons/Leave");
@@ -112,17 +142,17 @@ public static class WorldManager
         streamerModeButton.AddComponent<UI.Buttons.StreamerModeButton>();
     }
 
-    public static FallableHexagon GetTileByIndex(int index)
+    public FallableHexagon GetTileByIndex(int index)
     {
         return hexagonParent.Hexagons[index];
     }
 
-    public static int GetTileIndex(FallableHexagon hex)
+    public int GetTileIndex(FallableHexagon hex)
     {
         return hexagonParent.Hexagons.IndexOfRef(hex);
     }
 
-    public static async void ResetTiles()
+    public async void ResetTiles()
     {
         var tiles = hexagonParent.Hexagons.Where(x => x.IsFalling).ToArray();
         TeleportController.FisherYatesShuffle(tiles);  // the random seed should still be synced between players
@@ -136,7 +166,7 @@ public static class WorldManager
         Main.Log("Finished resetting tiles");
     }
 
-    public static Transform GetParent()
+    public Transform GetParent()
     {
         if (sceneParent == null)
         {
@@ -146,7 +176,7 @@ public static class WorldManager
         return sceneParent.transform;
     }
 
-    public static void SetBoardText(string header, System.Text.StringBuilder stringBuilder)
+    public void SetBoardText(string header, System.Text.StringBuilder stringBuilder)
     {
         if (boardText == null)
         {

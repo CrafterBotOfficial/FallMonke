@@ -19,7 +19,7 @@ public class FallHexagonEventHandler : IEventHandler
             return;
         }
 
-        var tile = WorldManager.GetTileByIndex(tileIndex);
+        var tile = WorldManager.Instance.GetTileByIndex(tileIndex);
 
         VRRig rig = manager.FindPlayerVRRig(sender);
         const float maxDistance = 10;

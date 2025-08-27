@@ -27,7 +27,7 @@ public class ParticipantManager : MonoBehaviour
         if (!Info.IsAlive)
             return;
 
-        if (transform.position.y < WorldManager.EliminationHeight)
+        if (transform.position.y < WorldManager.Instance.EliminationHeight)
         {
             // I died
             Info.IsAlive = false;
