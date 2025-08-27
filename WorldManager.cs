@@ -16,7 +16,8 @@ public sealed class WorldManager
     private static readonly Lazy<WorldManager> instance = new Lazy<WorldManager>(() => new WorldManager());
     public static WorldManager Instance { get { return instance.Value; } }
 
-    private bool sceneLoaded;
+    private Task loadWorldTask;
+    private volatile bool sceneLoaded;
 
     private GameObject sceneParent;
     private HexagonParent hexagonParent;
@@ -30,21 +31,16 @@ public sealed class WorldManager
     {
     }
 
-    public async void ActivateWorld()
+    public async Task ActivateWorld()
     {
-        if (!sceneLoaded)
+        lock (padLock)
         {
-            Task task = null;
-            lock (padLock)
+            if (!sceneLoaded)
             {
-                if (!sceneLoaded)
-                {
-                    task = LoadWorld();
-                }
+                loadWorldTask = LoadWorld();
             }
-            if (task != null)
-                await task;
         }
+        await loadWorldTask;
 
         SetWorldActive(true);
         TeleportController.TeleportToLobby();
