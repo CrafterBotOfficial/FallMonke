@@ -57,12 +57,12 @@ public class GameOn : IGameState
             return new();
 
         var stringBuilder = new System.Text.StringBuilder();
-        var players = manager.Players.OrderBy(player => player.IsAlive);
+        var players = manager.Players.OrderBy(player => !player.IsDead);
         foreach (var player in players)
-            if (player.IsAlive)
-                stringBuilder.AppendLine($"<align=\"left\">{player.Player.SanitizedNickName}");
-            else
+            if (player.IsDead)
                 stringBuilder.AppendLine($"<align=\"left\"><color=#ff0800>{player.Player.SanitizedNickName}</color>");
+            else
+                stringBuilder.AppendLine($"<align=\"left\">{player.Player.SanitizedNickName}");
 
         return new GameBoardText("Remaining Players", stringBuilder);
     }

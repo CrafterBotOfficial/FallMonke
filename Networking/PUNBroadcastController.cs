@@ -9,6 +9,8 @@ namespace FallMonke.Networking;
 
 public class PUNBroadcastController : IBroadcastController
 {
+    public const byte PUN_EVENT_CODE = 25;
+
     private PUNEventHandler eventHandler;
     private Player[] players;
 
@@ -22,21 +24,15 @@ public class PUNBroadcastController : IBroadcastController
     public void FallPlatform(Hexagon.FallableHexagon tile)
     {
         int tileIndex = WorldManager.Instance.GetTileIndex(tile);
-
-        var raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others, /* TargetActors = targets */ };
-        PhotonNetwork.RaiseEvent((byte)EventCodesEnum.FALL_TILE,
-                                 tileIndex,
-                                 raiseEventOptions,
-                                 SendOptions.SendReliable);
+        SendEvent(EventCodesEnum.FALL_TILE, tileIndex, ReceiverGroup.Others);
     }
 
     public void SendRandomSeed(int random)
     {
-        if (!NetworkSystem.Instance.IsMasterClient) return;
-        PhotonNetwork.RaiseEvent((byte)EventCodesEnum.SPAWN_PLAYER_ON_RANDOM_TILE,
-                                 random,
-                                 new RaiseEventOptions { Receivers = ReceiverGroup.All },
-                                 SendOptions.SendReliable);
+        if (NetworkSystem.Instance.IsMasterClient)
+        {
+            SendEvent(EventCodesEnum.SPAWN_PLAYER_ON_RANDOM_TILE, random);
+        }
     }
 
     /// <summary>
@@ -44,25 +40,41 @@ public class PUNBroadcastController : IBroadcastController
     /// </summary>
     public void ShowNotification(string message)
     {
-        if (!NetworkSystem.Instance.IsMasterClient || message.Length > EventHandlers.ShowNotificationEventHandler.MaxMessageLength) return;
-        PhotonNetwork.RaiseEvent((byte)EventCodesEnum.SHOW_NOTIFICATION,
-                                 message,
-                                 new RaiseEventOptions { Receivers = ReceiverGroup.All },
-                                 SendOptions.SendReliable);
+        if (NetworkSystem.Instance.IsMasterClient && message.Length < EventHandlers.ShowNotificationEventHandler.MaxMessageLength)
+        {
+            SendEvent(EventCodesEnum.SHOW_NOTIFICATION, message);
+        }
     }
 
     public void RequestStartGame()
     {
-        PhotonNetwork.RaiseEvent((byte)EventCodesEnum.REQUEST_TO_START_GAME,
-                                 true,
-                                 new RaiseEventOptions { Receivers = ReceiverGroup.All },
-                                 SendOptions.SendReliable);
+        SendEvent(EventCodesEnum.REQUEST_TO_START_GAME);
+    }
+
+    public void SendReportElimination()
+    {
+        SendEvent(EventCodesEnum.ELIMINATE_PLAYER);
     }
 
     public Participant[] CreateParticipants()
     {
         return GetPlayersQuery().Select(player => CreateParticipant(player))
                                 .ToArray();
+    }
+
+    private void SendEvent(EventCodesEnum code)
+    {
+        SendEvent(code, true);
+    }
+
+    private void SendEvent(EventCodesEnum code, object content, ReceiverGroup receivers = ReceiverGroup.All)
+    {
+        var eventData = new CustomEventData((int)code, content);
+        int[] targets = ((CustomGameManager)CustomGameManager.instance).PlayerIDs;
+        PhotonNetwork.RaiseEvent(PUN_EVENT_CODE,
+                                 eventData,
+                                 new RaiseEventOptions { TargetActors = targets, Receivers = receivers },
+                                 SendOptions.SendReliable);
     }
 
     public int PlayersWithModCount()
@@ -94,7 +106,7 @@ public class PUNBroadcastController : IBroadcastController
     {
         var participant = new Participant(player);
         var rig = ((CustomGameManager)CustomGameManager.instance).FindPlayerVRRig(player);
-        participant.Manager = rig.AddComponent<ParticipantManager>();
+        participant.Manager = player.IsLocal ? rig.AddComponent<LocalPlayerManager>() : rig.AddComponent<ParticipantManager>();
         participant.Manager.Rig = rig;
         participant.Manager.Info = participant;
         return participant;
@@ -102,8 +114,14 @@ public class PUNBroadcastController : IBroadcastController
 
     public void MakeModIdentifable()
     {
-        ExitGames.Client.Photon.Hashtable properties = new() { { CustomGameManager.MOD_KEY, true } };
-        Photon.Pun.PhotonNetwork.SetPlayerCustomProperties(properties);
+        var modVersion = Main.Instance.Info.Metadata.Version;
+        ExitGames.Client.Photon.Hashtable properties = new() { { CustomGameManager.MOD_KEY, modVersion } };
+        if (properties != null)
+        {
+            Photon.Pun.PhotonNetwork.SetPlayerCustomProperties(properties);
+            return;
+        }
+        Main.Log("Failed to set player properties, will not be allowed to participate in games", BepInEx.Logging.LogLevel.Error);
     }
 
     public void OnJoin(NetPlayer player)

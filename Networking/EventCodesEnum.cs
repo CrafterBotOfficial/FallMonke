@@ -1,9 +1,10 @@
 namespace FallMonke.Networking;
 
-public enum EventCodesEnum : byte
+public enum EventCodesEnum
 {
-    FALL_TILE = 25, // todo: find safe codes to use 
+    FALL_TILE,
     SPAWN_PLAYER_ON_RANDOM_TILE,
     SHOW_NOTIFICATION,
     REQUEST_TO_START_GAME,
+    ELIMINATE_PLAYER,
 }

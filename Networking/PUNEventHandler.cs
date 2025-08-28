@@ -15,6 +15,7 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
         { EventCodesEnum.SPAWN_PLAYER_ON_RANDOM_TILE, new EventHandlers.SpawnPlayerEventHandler() },
         { EventCodesEnum.SHOW_NOTIFICATION, new EventHandlers.ShowNotificationEventHandler() },
         { EventCodesEnum.REQUEST_TO_START_GAME, new EventHandlers.StartGameRequestHandler() },
+        { EventCodesEnum.ELIMINATE_PLAYER, new EventHandlers.EliminatePlayerEventHandler() },
     };
 
     public PUNEventHandler()
@@ -32,13 +33,22 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
     {
         try
         {
-            if (CustomGameManager.instance is CustomGameManager)
+            if (photonEvent.Code != PUNBroadcastController.PUN_EVENT_CODE)
+                return;
+
+            if (CustomGameManager.instance is not CustomGameManager)
+                return;
+
+            if (photonEvent.CustomData is not CustomEventData eventData)
             {
-                if (eventHandlers.TryGetValue((EventCodesEnum)photonEvent.Code, out IEventHandler handler))
-                {
-                    NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
-                    handler.OnEvent(player, photonEvent.CustomData);
-                }
+                Main.Log("Malformed custom event", BepInEx.Logging.LogLevel.Warning);
+                return;
+            }
+
+            if (eventHandlers.TryGetValue((EventCodesEnum)eventData.Code, out IEventHandler handler))
+            {
+                NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
+                handler.OnEvent(player, eventData.Data);
             }
         }
         catch (Exception ex)

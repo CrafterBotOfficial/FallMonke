@@ -25,6 +25,7 @@ public class CustomGameManager : GorillaGameManager
     public IGameState CurrentStateHandler;
 
     public Participant[] Players;
+    public int[] PlayerIDs;
     public Participant LocalPlayer;
 
     public bool StartButtonPressed;
@@ -73,6 +74,7 @@ public class CustomGameManager : GorillaGameManager
     public void CreateParticipants()
     {
         Players = BroadcastController.CreateParticipants();
+        PlayerIDs = Players.Select(x => x.Player.ActorNumber).ToArray();
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
@@ -104,7 +106,6 @@ public class CustomGameManager : GorillaGameManager
         }
     }
 
-    // todo: must be called right after player is eliminated to ensure Players.Count != 0 never ever
     public override void InfrequentUpdate()
     {
         base.InfrequentUpdate();
@@ -184,7 +185,7 @@ public class CustomGameManager : GorillaGameManager
         if (newMaster.IsLocal)
         {
             Main.Log("Looks like Im incharge now");
-            // todo: add any logic to handle the game, but probably not nessacry since everything just checks if the local player is the master anyway 
+            // TODO: add any logic to handle the game, but probably not nessacry since everything just checks if the local player is the master anyway 
         }
     }
 

@@ -9,11 +9,11 @@ namespace FallMonke;
 [ModdedGamemode("FALLMONKE", "FALL MONKE", typeof(CustomGameManager))]
 public class Main : BaseUnityPlugin
 {
-    private static Main instance;
+    public static Main Instance;
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
         Utilla.Events.GameInitialized += (sender, args) =>
         {
             if (NetworkSystem.Instance is not NetworkSystemPUN)
@@ -26,6 +26,6 @@ public class Main : BaseUnityPlugin
 
     public static void Log(object message, LogLevel level = LogLevel.Info)
     {
-        instance?.Logger.Log(level, message);
+        Instance?.Logger.Log(level, message);
     }
 }
