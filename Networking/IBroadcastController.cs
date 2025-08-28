@@ -1,7 +1,7 @@
 namespace FallMonke.Networking;
 
-// todo: add fusion implimentation
-// todo: rename
+// TODO: add fusion implimentation
+// TODO: rename
 public interface IBroadcastController
 {
     public void SetupEventHandler();
@@ -10,6 +10,7 @@ public interface IBroadcastController
     public void SendRandomSeed(int random);
     public void ShowNotification(string message);
     public void RequestStartGame();
+    public void SendReportElimination();
 
     public Participant[] CreateParticipants();
     public int PlayersWithModCount();
