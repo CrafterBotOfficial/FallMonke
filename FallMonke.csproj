@@ -8,9 +8,9 @@
   <Target AfterTargets="Build" Name="Output">
     <Copy SourceFiles="$(TargetPath);bin/Debug/$(TargetFramework)/FallMonke.pdb" DestinationFiles="$(GORILLATAG_PATH)/BepInEx/plugins/FallMonke/FallMonke.dll;$(GORILLATAG_PATH)/BepInEx/plugins/FallMonke/FallMonke.pdb" />
   </Target>
-	
+
     <ItemGroup>
-    <EmbeddedResource Include="Resources/hexagone" />
+        <EmbeddedResource Include="Resources/hexagone" />
     </ItemGroup>
 
   <ItemGroup>
