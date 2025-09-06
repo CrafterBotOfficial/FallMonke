@@ -4,7 +4,7 @@ using Utilla.Attributes;
 
 namespace FallMonke;
 
-[BepInPlugin("com.crafterbot.monkefall", "Fall Monke", "1.1.0")]
+[BepInPlugin("com.crafterbot.monkefall", "Fall Monke", "1.1.1")]
 [BepInDependency("org.legoandmars.gorillatag.utilla", "1.6.0"), BepInDependency("crafterbot.notificationlib")]
 [ModdedGamemode("FALLMONKE", "FALL MONKE", typeof(CustomGameManager))]
 public class Main : BaseUnityPlugin
@@ -14,7 +14,7 @@ public class Main : BaseUnityPlugin
     private void Awake()
     {
         Instance = this;
-        Utilla.Events.GameInitialized += (sender, args) =>
+        Utilla.Events.GameInitialized += (_, _) =>
         {
             if (NetworkSystem.Instance is not NetworkSystemPUN)
                 return;

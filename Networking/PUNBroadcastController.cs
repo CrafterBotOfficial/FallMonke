@@ -114,7 +114,7 @@ public class PUNBroadcastController : IBroadcastController
 
     public void MakeModIdentifable()
     {
-        var modVersion = Main.Instance.Info.Metadata.Version;
+        string modVersion = Main.Instance.Info.Metadata.Version.ToString();
         ExitGames.Client.Photon.Hashtable properties = new() { { CustomGameManager.MOD_KEY, modVersion } };
         if (properties != null)
         {

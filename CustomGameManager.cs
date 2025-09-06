@@ -43,9 +43,12 @@ public class CustomGameManager : GorillaGameManager
         base.StartPlaying();
         Main.Log("CustomGameManager starting!", BepInEx.Logging.LogLevel.Message);
 
-#pragma warning disable CS4014
-        WorldManager.Instance.ActivateWorld();
-#pragma warning restore CS4014
+// #pragma warning disable CS4014
+        WorldManager.Instance.ActivateWorld().ContinueWith(t =>
+        {
+            Main.Log(t.Exception, BepInEx.Logging.LogLevel.Fatal);
+        }, continuationOptions: System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
+// #pragma warning restore CS4014
 
         StartButtonPressed = false;
 

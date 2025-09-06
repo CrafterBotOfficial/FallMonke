@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using FallMonke.Hexagon;
+using GorillaTag.Cosmetics;
 
 namespace FallMonke;
 
@@ -14,10 +15,12 @@ public sealed class WorldManager
     private static object padLock = new object();
 
     private static readonly Lazy<WorldManager> instance = new Lazy<WorldManager>(() => new WorldManager());
-    public static WorldManager Instance { get { return instance.Value; } }
+    public static WorldManager Instance => instance.Value; 
 
     private Task loadWorldTask;
+#pragma warning disable CS0414
     private volatile bool sceneLoaded;
+#pragma warning restore CS0414
 
     private GameObject sceneParent;
     private HexagonParent hexagonParent;
@@ -27,21 +30,21 @@ public sealed class WorldManager
     public TMP_FontAsset GorillaTextFont;
     private TextMeshPro boardText;
 
-    private WorldManager()
-    {
-    }
-
     public async Task ActivateWorld()
     {
-        lock (padLock)
+        if (!sceneLoaded)
         {
-            if (!sceneLoaded)
+            lock (padLock)
             {
-                loadWorldTask = LoadWorld();
+                if (loadWorldTask == null)
+                {
+                    loadWorldTask = LoadWorld();
+                }
             }
+            await loadWorldTask;
         }
-        await loadWorldTask;
 
+        Main.Log("Teleporting player to world");
         SetWorldActive(true);
         TeleportController.TeleportToLobby();
     }
@@ -101,7 +104,7 @@ public sealed class WorldManager
 
         sceneParent = SceneManager.GetSceneByName("Crafterbot").GetRootGameObjects()[0]; // GameObject.Find("/SceneParent");
 
-        hexagonParent = GameObject.FindObjectOfType<HexagonParent>();
+        hexagonParent = GameObject.FindFirstObjectByType<HexagonParent>();
         Main.Log(hexagonParent.Hexagons.Length + " tiles");
 
         GorillaTextFont = GorillaTagger.Instance.offlineVRRig.playerText1.font;
@@ -150,6 +153,11 @@ public sealed class WorldManager
 
     public async void ResetTiles()
     {
+        if (!sceneLoaded)
+        {
+            // Main.Log("Scene not loaded yet.", BepInEx.Logging.LogLevel.Warning);
+            return;
+        }
         var tiles = hexagonParent.Hexagons.Where(x => x.IsFalling).ToArray();
         TeleportController.FisherYatesShuffle(tiles);  // the random seed should still be synced between players
         int delay = 5000 / tiles.Length;
