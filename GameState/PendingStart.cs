@@ -55,7 +55,7 @@ public class PendingStart : IGameState
         stringBuilder.AppendLine(string.Empty);
         stringBuilder.AppendLine(string.Empty);
 
-        bool enoughPlayers = manager.BroadcastController.PlayersWithModCount() >= CustomGameManager.REQUIRED_PLAYER_COUNT;
+        bool enoughPlayers = manager.NetworkController.PlayersWithModCount() >= CustomGameManager.REQUIRED_PLAYER_COUNT;
         if (enoughPlayers)
             if (manager.StartButtonPressed)
                 stringBuilder.AppendLine("Game will start in 10 seconds");

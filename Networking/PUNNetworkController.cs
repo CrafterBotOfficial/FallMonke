@@ -7,7 +7,7 @@ using ExitGames.Client.Photon;
 
 namespace FallMonke.Networking;
 
-public class PUNBroadcastController : IBroadcastController
+public class PUNNetworkController : INetworkController 
 {
     public const byte PUN_EVENT_CODE = 25;
 

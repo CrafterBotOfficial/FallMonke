@@ -16,7 +16,7 @@ public class EliminatePlayerEventHandler : IEventHandler
 
         var participant = manager.Players.FirstOrDefault(x => x.Player == sender);
 
-        if (participant == null)
+        if (participant is null)
         {
             Main.Log("Bad event, sender isn't participant", BepInEx.Logging.LogLevel.Warning);
             return;

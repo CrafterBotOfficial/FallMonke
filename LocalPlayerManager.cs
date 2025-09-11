@@ -15,7 +15,7 @@ public class LocalPlayerManager : ParticipantManager
         if (!Info.Player.IsLocal)
         {
             Main.Log("Being added to wrong player!", BepInEx.Logging.LogLevel.Warning);
-            DestroyImmediate(this);
+            Destroy(this);
             return;
         }
         rigHands = [
@@ -24,7 +24,6 @@ public class LocalPlayerManager : ParticipantManager
         ];
     }
 
-    // the idea behind this is everything will happen twice, once on locally only for the player and another for the master client
     private void Update()
     {
         var manager = (CustomGameManager)GorillaGameManager.instance; // https://www.youtube.com/shorts/pFB5F-fS_Y4
@@ -36,12 +35,11 @@ public class LocalPlayerManager : ParticipantManager
         {
             Main.Log("I've been eliminated");
             reportDeathSent = true;
-            manager.BroadcastController.SendReportElimination();
+            manager.NetworkController.SendReportElimination();
             TeleportController.TeleportToLobby();
             return;
         }
 
-        // change: Master no longer manages tiles, each player does then tells everyone else when fell
         if (Info.Player.IsLocal && !manager.CooldownInAffect)
         {
             FallableHexagon hexagon;
@@ -68,7 +66,7 @@ public class LocalPlayerManager : ParticipantManager
         {
             Main.Log("Yeeting platform", BepInEx.Logging.LogLevel.Debug);
             hexagon.Fall();
-            manager.BroadcastController.FallPlatform(hexagon);
+            manager.NetworkController.FallPlatform(hexagon);
         }
     }
 

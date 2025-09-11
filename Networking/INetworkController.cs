@@ -1,7 +1,7 @@
 namespace FallMonke.Networking;
 
 // TODO: add fusion implimentation
-public interface IBroadcastController
+public interface INetworkController 
 {
     public void SetupEventHandler();
 
