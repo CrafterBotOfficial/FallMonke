@@ -16,17 +16,17 @@ public static class TeleportController
 
     public static void TeleportToLobby()
     {
-        TeleportLocalPlayer("/LobbySpawnpoint");
+        TeleportLocalPlayer("LobbySpawnpoint");
     }
 
     public static void TeleportToGame(int seed)
     {
-        if (CustomGameManager.instance is not CustomGameManager manager)
+        if (GorillaGameManager.instance is not CustomGameManager manager)
             return;
 
         UnityEngine.Random.InitState(seed);
         Transform[] spawnPoints = WorldManager.Instance.GetParent()
-                                                       .Find("/SpawnPoints")
+                                                       .Find("SpawnPoints")
                                                        .GetComponentsInChildren<Transform>()
                                                        .ToList()
                                                        .ToArray();
@@ -47,7 +47,7 @@ public static class TeleportController
     private static void TeleportLocalPlayer(string anchor)
     {
         var anchorObject = GameObject.Find(anchor);
-        if (anchorObject == null)
+        if (anchorObject is null)
         {
             Main.Log("Failed to find tp anchor", BepInEx.Logging.LogLevel.Fatal);
             return;

@@ -33,7 +33,7 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
     {
         try
         {
-            if (photonEvent.Code != PUNBroadcastController.PUN_EVENT_CODE)
+            if (photonEvent.Code != PUNNetworkController.PUN_EVENT_CODE)
                 return;
 
             if (CustomGameManager.instance is not CustomGameManager)

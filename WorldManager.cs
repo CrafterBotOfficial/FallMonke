@@ -32,17 +32,14 @@ public sealed class WorldManager
 
     public async Task ActivateWorld()
     {
-        if (!sceneLoaded)
+        lock (padLock)
         {
-            lock (padLock)
+            if (loadWorldTask is null)
             {
-                if (loadWorldTask == null)
-                {
-                    loadWorldTask = LoadWorld();
-                }
+                loadWorldTask = LoadWorld();
             }
-            await loadWorldTask;
         }
+        await loadWorldTask;
 
         Main.Log("Teleporting player to world");
         SetWorldActive(true);
@@ -111,14 +108,14 @@ public sealed class WorldManager
 
         SetupButtons();
 
-        sceneParent.transform.Find("/room").AddComponent<GorillaSurfaceOverride>().transform
+        sceneParent.transform.Find("room").AddComponent<GorillaSurfaceOverride>().transform
             .GetChild(0)
             .AddComponent<GorillaSurfaceOverride>().overrideIndex = 120; // for the glass sounds
 
-        EliminationHeight = sceneParent.transform.Find("/WaterVRview").transform.position.y;
+        EliminationHeight = sceneParent.transform.Find("WaterVRview").transform.position.y;
 
         // setup board
-        boardText = sceneParent.transform.Find("/TextComponents/TextHeader").GetComponent<TextMeshPro>();
+        boardText = sceneParent.transform.Find("TextComponents/TextHeader").GetComponent<TextMeshPro>();
         boardText.font = GorillaTextFont;
         boardText.text = string.Empty;
 
@@ -172,7 +169,7 @@ public sealed class WorldManager
 
     public Transform GetParent()
     {
-        if (sceneParent == null)
+        if (sceneParent is null)
         {
             Main.Log("Scene not loaded yet trying to play game.", BepInEx.Logging.LogLevel.Fatal);
             return null;
@@ -182,14 +179,14 @@ public sealed class WorldManager
 
     public void SetBoardText(string header, System.Text.StringBuilder stringBuilder)
     {
-        if (boardText == null)
+        if (boardText is null)
         {
             Main.Log(stringBuilder, BepInEx.Logging.LogLevel.Warning);
             return;
         }
         var headerBuilder = new System.Text.StringBuilder();
         headerBuilder.AppendLine(header);
-        headerBuilder.AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - -");
+        headerBuilder.AppendLine("- - - - - - - - - - - - - - - - - - - -");
         boardText.text = headerBuilder.Append(stringBuilder).ToString();
     }
 }

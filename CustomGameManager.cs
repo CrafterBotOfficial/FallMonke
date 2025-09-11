@@ -19,7 +19,7 @@ public class CustomGameManager : GorillaGameManager
     public const int REQUIRED_PLAYER_COUNT = 2;
 
     public INotificationHandler NotificationHandler;
-    public IBroadcastController BroadcastController;
+    public INetworkController NetworkController;
 
     public GameStateEnum CurrentState;
     public IGameState CurrentStateHandler;
@@ -54,9 +54,9 @@ public class CustomGameManager : GorillaGameManager
 
         NotificationHandler = new NotificationSystem.MonkeNotificationLibWrapper();
 
-        BroadcastController = new Networking.PUNBroadcastController();
-        BroadcastController.MakeModIdentifable();
-        BroadcastController.SetupEventHandler();
+        NetworkController = new Networking.PUNNetworkController();
+        NetworkController.MakeModIdentifable();
+        NetworkController.SetupEventHandler();
 
         if (NetworkSystem.Instance.IsMasterClient)
         {
@@ -70,18 +70,17 @@ public class CustomGameManager : GorillaGameManager
     {
         base.StopPlaying();
         WorldManager.Instance.DeactivateWorld();
-        BroadcastController.Cleanup();
+        NetworkController.Cleanup();
         TeleportController.TeleportToStump();
     }
 
     public void CreateParticipants()
     {
-        Players = BroadcastController.CreateParticipants();
+        Players = NetworkController.CreateParticipants();
         PlayerIDs = Players.Select(x => x.Player.ActorNumber).ToArray();
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
-    // should be moved to game state handlers
     public void UpdateBoard()
     {
         if (CurrentStateHandler != null)
@@ -115,16 +114,16 @@ public class CustomGameManager : GorillaGameManager
         UpdateBoard();
         if (NetworkSystem.Instance.IsMasterClient)
         {
-            if (CurrentStateHandler == null)
+            if (CurrentStateHandler is null)
             {
                 Main.Log("State handler is null, maybe I became master prior to start?", BepInEx.Logging.LogLevel.Warning);
                 if (CurrentState == 0) HandleStateSwitch(GameStateEnum.PendingStart);
                 else HandleStateSwitch(CurrentState);
             }
 
-            var details = new GameStateDetails
+            var details = new GameStateDetails() with
             {
-                RemainingPlayers = Players == null ? -1 : Players.Count(player => player.IsAlive),
+                RemainingPlayers = Players is null ? -1 : Players.Count(player => player.IsAlive),
             };
             HandleStateSwitch(CurrentStateHandler.CheckGameState(details));
         }
@@ -148,10 +147,10 @@ public class CustomGameManager : GorillaGameManager
 
     public bool CanStartGame()
     {
-        if (CurrentStateHandler == null || BroadcastController == null) return false;
+        if (CurrentStateHandler is null || NetworkController is null) return false;
         if (CurrentState != GameStateEnum.PendingStart) return false;
 
-        return BroadcastController.PlayersWithModCount() >= REQUIRED_PLAYER_COUNT && StartButtonPressed;
+        return NetworkController.PlayersWithModCount() >= REQUIRED_PLAYER_COUNT && StartButtonPressed;
     }
 
     public override void OnSerializeRead(object newData) { Main.Log("Got new state " + (int)newData); HandleStateSwitch((GameStateEnum)newData); }
@@ -215,7 +214,7 @@ public class CustomGameManager : GorillaGameManager
     };
 }
 
-public struct GameStateDetails
+public record struct GameStateDetails
 {
     public int RemainingPlayers;
 }
