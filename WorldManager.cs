@@ -17,6 +17,8 @@ public sealed class WorldManager
     private static readonly Lazy<WorldManager> instance = new Lazy<WorldManager>(() => new WorldManager());
     public static WorldManager Instance => instance.Value; 
 
+    public bool SceneLoaded => sceneLoaded;
+
     private Task loadWorldTask;
 #pragma warning disable CS0414
     private volatile bool sceneLoaded;
