@@ -37,7 +37,7 @@ public class GameOn : IGameState
         {
             Main.Log("Looks like its up to me to decide where everyone has to go.");
             int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            manager.NetworkController.SendRandomSeed(seed);
+            manager.NetworkController.SendTeleportToGame(seed);
         }
 
         manager.CooldownInAffect = true;

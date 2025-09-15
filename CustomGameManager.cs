@@ -111,6 +111,10 @@ public class CustomGameManager : GorillaGameManager
     public override void InfrequentUpdate()
     {
         base.InfrequentUpdate();
+
+        if (!WorldManager.Instance.SceneLoaded)
+            return;
+
         UpdateBoard();
         if (NetworkSystem.Instance.IsMasterClient)
         {
@@ -187,7 +191,6 @@ public class CustomGameManager : GorillaGameManager
         if (newMaster.IsLocal)
         {
             Main.Log("Looks like Im incharge now");
-            // TODO: add any logic to handle the game, but probably not nessacry since everything just checks if the local player is the master anyway 
         }
     }
 

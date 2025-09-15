@@ -27,7 +27,7 @@ public class PUNNetworkController : INetworkController
         SendEvent(EventCodesEnum.FALL_TILE, tileIndex, ReceiverGroup.Others);
     }
 
-    public void SendRandomSeed(int random)
+    public void SendTeleportToGame(int random)
     {
         if (NetworkSystem.Instance.IsMasterClient)
         {
