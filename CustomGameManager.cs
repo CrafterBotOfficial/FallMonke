@@ -10,13 +10,14 @@ using System.Linq;
 using Photon.Pun;
 using GorillaGameModes;
 using Fusion;
+using System.Collections;
+using UnityEngine;
 
 namespace FallMonke;
 
 public class CustomGameManager : GorillaGameManager
 {
     public const string MOD_KEY = "fallmonke_prop";
-    public const int REQUIRED_PLAYER_COUNT = 2;
 
     public INotificationHandler NotificationHandler;
     public INetworkController NetworkController;
@@ -90,14 +91,23 @@ public class CustomGameManager : GorillaGameManager
         }
     }
 
+    public IEnumerator StartGameCooldown()
+    {
+        CooldownInAffect = true;
+        SetPlayerSpeeds(canMove: false);
+        yield return new WaitForSeconds(GameConfig.START_GAME_MOVEMENT_COOLDOWN_SECONDS);
+        CooldownInAffect = false;
+        SetPlayerSpeeds(canMove: true);
+    }
+
     public void SetPlayerSpeeds(bool canMove)
     {
         if (canMove)
         {
-            slowJumpLimit = 6.5f;
-            fastJumpLimit = 8.5f;
-            slowJumpMultiplier = 1.1f;
-            fastJumpMultiplier = 1.3f;
+            slowJumpLimit = GameConfig.SLOW_JUMP_LIMIT;
+            fastJumpLimit = GameConfig.FAST_JUMP_LIMIT;
+            slowJumpMultiplier = GameConfig.SLOW_JUMP_MULTIPLIER;
+            fastJumpMultiplier = GameConfig.FAST_JUMP_MULTIPLIER;
         }
         else
         {
@@ -154,7 +164,7 @@ public class CustomGameManager : GorillaGameManager
         if (CurrentStateHandler is null || NetworkController is null) return false;
         if (CurrentState != GameStateEnum.PendingStart) return false;
 
-        return NetworkController.PlayersWithModCount() >= REQUIRED_PLAYER_COUNT && StartButtonPressed;
+        return NetworkController.PlayersWithModCount() >= GameConfig.REQUIRED_PLAYER_COUNT && StartButtonPressed;
     }
 
     public override void OnSerializeRead(object newData) { Main.Log("Got new state " + (int)newData); HandleStateSwitch((GameStateEnum)newData); }
@@ -164,7 +174,7 @@ public class CustomGameManager : GorillaGameManager
     {
         if (!NetworkSystem.Instance.IsMasterClient)
         {
-            Main.Log("Why do I have authority? Maybe I am a cheater?", BepInEx.Logging.LogLevel.Warning);
+            Main.Log("Why do I have authority?", BepInEx.Logging.LogLevel.Warning);
             return;
         }
         stream.SendNext(CurrentState);

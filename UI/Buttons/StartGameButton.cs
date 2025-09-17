@@ -20,7 +20,7 @@ public class StartGameButton : PressableButton
 
         animator.Play("ButtonAnimation", -1, 0f);
 
-        if (manager.NetworkController.PlayersWithModCount() < CustomGameManager.REQUIRED_PLAYER_COUNT)
+        if (manager.NetworkController.PlayersWithModCount() < GameConfig.REQUIRED_PLAYER_COUNT)
         {
             manager.NotificationHandler.ShowNotification("Not enough players");
             return;

@@ -8,14 +8,14 @@ public class GameOn : IGameState
     {
         var manager = (CustomGameManager)CustomGameManager.instance;
 
-        if (details.RemainingPlayers == 1)
+        if (details.RemainingPlayers == GameConfig.MIN_PLAYERS_TO_CONTINUE)
         {
             string winText = $"{GetWinner().Player.SanitizedNickName} wins!";
             manager.NetworkController.ShowNotification(winText);
             return GameStateEnum.Finished;
         }
 
-        if (details.RemainingPlayers < 1)
+        if (details.RemainingPlayers < GameConfig.MIN_PLAYERS_TO_CONTINUE)
         {
             Main.Log("Not enough players to continue the game.");
             manager.NetworkController.ShowNotification("Game over!");
@@ -40,14 +40,7 @@ public class GameOn : IGameState
             manager.NetworkController.SendTeleportToGame(seed);
         }
 
-        manager.CooldownInAffect = true;
-        manager.SetPlayerSpeeds(canMove: false);
-        new System.Threading.Thread(async () =>
-        {
-            await System.Threading.Tasks.Task.Delay(3000);
-            manager.CooldownInAffect = false;
-            manager.SetPlayerSpeeds(canMove: true);
-        }).Start();
+        manager.StartCoroutine(nameof(CustomGameManager.StartGameCooldown));
     }
 
     public GameBoardText GetBoardText()
