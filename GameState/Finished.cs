@@ -22,7 +22,7 @@ public class Finished : IGameState
         manager.StartButtonPressed = false;
 
         manager.NotificationHandler.ShowNotification("Getting ready for next game...");
-        switchTime = DateTime.Now + TimeSpan.FromSeconds(5); // a janky way to ensure all clients switch to finished so they cleanup.
+        switchTime = DateTime.Now + TimeSpan.FromSeconds(GameConfig.FINISHED_DELAY_SECONDS); // a janky way to ensure all players switch to finished so they cleanup.
 
         if (!manager.Players.IsNullOrEmpty())
             foreach (var player in manager.Players)

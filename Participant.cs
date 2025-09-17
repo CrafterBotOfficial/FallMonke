@@ -2,8 +2,8 @@ namespace FallMonke;
 
 public class Participant(NetPlayer player)
 {
-    public NetPlayer Player { get; private set; } = player;
-    public bool IsDead { get; set; }
-    public bool IsAlive { get { return !IsDead; } }
-    public ParticipantManager Manager { get; set; }
+    public readonly NetPlayer Player = player;
+    public bool IsDead;
+    public bool IsAlive => !IsDead;
+    public ParticipantManager Manager;
 }

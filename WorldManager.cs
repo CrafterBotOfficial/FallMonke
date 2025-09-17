@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using FallMonke.Hexagon;
 using GorillaTag.Cosmetics;
+using System.Collections;
 
 namespace FallMonke;
 
@@ -150,12 +151,12 @@ public sealed class WorldManager
         return hexagonParent.Hexagons.IndexOfRef(hex);
     }
 
-    public async void ResetTiles()
+    public IEnumerator ResetTilesCorountine()
     {
         if (!sceneLoaded)
         {
             // Main.Log("Scene not loaded yet.", BepInEx.Logging.LogLevel.Warning);
-            return;
+            yield break;
         }
         var tiles = hexagonParent.Hexagons.Where(x => x.IsFalling).ToArray();
         TeleportController.FisherYatesShuffle(tiles);  // the random seed should still be synced between players
@@ -164,7 +165,7 @@ public sealed class WorldManager
         foreach (var tile in tiles)
         {
             tile.Reset();
-            await Task.Delay(delay);
+            yield return new WaitForSeconds(delay / 1000f);
         }
         Main.Log("Finished resetting tiles");
     }
@@ -173,7 +174,7 @@ public sealed class WorldManager
     {
         if (sceneParent is null)
         {
-            Main.Log("Scene not loaded yet trying to play game.", BepInEx.Logging.LogLevel.Fatal);
+            Main.Log("Scene not loaded, yet trying to play game.", BepInEx.Logging.LogLevel.Fatal);
             return null;
         }
         return sceneParent.transform;

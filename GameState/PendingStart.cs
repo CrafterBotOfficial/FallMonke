@@ -5,7 +5,7 @@ namespace FallMonke.GameState;
 
 public class PendingStart : IGameState
 {
-    private static readonly TimeSpan GameOnCountdown = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan GameOnCountdown = TimeSpan.FromSeconds(GameConfig.START_GAME_COUNTDOWN_SECONDS);
 
     private bool countdown;
     private DateTime startGameTime;
@@ -45,7 +45,7 @@ public class PendingStart : IGameState
     public void OnSwitchTo()
     {
         countdown = false;
-        WorldManager.Instance.ResetTiles();
+        ((CustomGameManager)CustomGameManager.instance).StartCoroutine(WorldManager.Instance.ResetTilesCorountine());
     }
 
     public GameBoardText GetBoardText()
@@ -55,14 +55,13 @@ public class PendingStart : IGameState
         stringBuilder.AppendLine(string.Empty);
         stringBuilder.AppendLine(string.Empty);
 
-        bool enoughPlayers = manager.NetworkController.PlayersWithModCount() >= CustomGameManager.REQUIRED_PLAYER_COUNT;
-        if (enoughPlayers)
-            if (manager.StartButtonPressed)
-                stringBuilder.AppendLine("Game will start in 10 seconds");
-            else
-                stringBuilder.AppendLine("Ready to start");
-        else
-            stringBuilder.AppendLine("Not enough players");
+        bool enoughPlayers = manager.NetworkController.PlayersWithModCount() >= GameConfig.REQUIRED_PLAYER_COUNT;
+        stringBuilder.AppendLine((enoughPlayers, manager.StartButtonPressed) switch
+        {
+            (true, true) => "Game will start in 10 seconds",
+            (true, false) => "Ready to start",
+            (false, _) => "Not enough players"
+        });
 
         return new GameBoardText("Pending Game Start", stringBuilder);
     }
