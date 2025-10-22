@@ -174,7 +174,6 @@ public class CustomGameManager : GorillaGameManager
     {
         if (!NetworkSystem.Instance.IsMasterClient)
         {
-            Main.Log("Why do I have authority?", BepInEx.Logging.LogLevel.Warning);
             return;
         }
         stream.SendNext(CurrentState);
