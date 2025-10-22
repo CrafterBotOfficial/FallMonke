@@ -1,102 +1,107 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
 
-   <!-- Output -->
-  <Target AfterTargets="Build" Name="Output">
-    <Copy SourceFiles="$(TargetPath);bin/Debug/$(TargetFramework)/FallMonke.pdb" DestinationFiles="$(GORILLATAG_PATH)/BepInEx/plugins/FallMonke/FallMonke.dll;$(GORILLATAG_PATH)/BepInEx/plugins/FallMonke/FallMonke.pdb" />
-  </Target>
+    <!-- Output -->
+    <Target Condition="'$(CI)'!='TRUE'" AfterTargets="Build" Name="Output">
+        <Copy SourceFiles="$(TargetPath);bin/Debug/$(TargetFramework)/FallMonke.pdb" DestinationFiles="$(GORILLATAG_PATH)/BepInEx/plugins/FallMonke/FallMonke.dll;$(GORILLATAG_PATH)/BepInEx/plugins/FallMonke/FallMonke.pdb" />
+    </Target>
 
     <ItemGroup>
         <EmbeddedResource Include="Resources/hexagone" />
     </ItemGroup>
 
-  <ItemGroup>
-    <None Remove=".gitignore" />
-    <None Remove="LICENSE" />
-    <None Remove="README.md" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove=".gitignore" />
+        <None Remove="LICENSE" />
+        <None Remove="README.md" />
+    </ItemGroup>
 
-  <!-- Dependencies -->
-  <ItemGroup>
-    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+    <!-- Dependencies -->
+    <ItemGroup Condition="'$(CI)'=='TRUE'">
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+        <PackageReference Publicize="true" Include="gorillatag" Version="1.0.*"/>
+    </ItemGroup>
 
-    <Reference Include="MonkeNotificationLib">
-      <HintPath>$(GORILLATAG_PATH)\BepInEx\plugins\MonkeNotificationLib\MonkeNotificationLib.dll</HintPath>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(GORILLATAG_PATH)\BepInEx\core\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp" Publicize="true">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx">
-      <HintPath>$(GORILLATAG_PATH)\BepInEx\core\BepInEx.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>$(GORILLATAG_PATH)\BepInEx\core\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.Utils">
-      <HintPath>$(GORILLATAG_PATH)\BepInEx\core\MonoMod.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="Fusion">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Fusion.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Photon">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Photon3Unity3D.dll</HintPath>
-    </Reference>
-    <Reference Include="PhotonNetwork">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\PhotonRealtime.dll</HintPath>
-    </Reference>
-    <Reference Include="PhotonNetworking">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\PhotonUnityNetworking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="Utilla">
-        <HintPath>$(GORILLATAG_PATH)/BepInEx\plugins\Utilla\Utilla.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextCoreFontEngineModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.TextCoreFontEngineModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextCoreTextEngineModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.TextCoreTextEngineModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.XR">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.XRModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AudioModule">
-          <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+    <ItemGroup Condition="'$(CI)'!='TRUE'">
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+
+        <Reference Include="MonkeNotificationLib">
+            <HintPath>$(GORILLATAG_PATH)\BepInEx\plugins\MonkeNotificationLib\MonkeNotificationLib.dll</HintPath>
+        </Reference>
+        <Reference Include="0Harmony">
+            <HintPath>$(GORILLATAG_PATH)\BepInEx\core\0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp" Publicize="true">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="BepInEx">
+            <HintPath>$(GORILLATAG_PATH)\BepInEx\core\BepInEx.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.Cecil">
+            <HintPath>$(GORILLATAG_PATH)\BepInEx\core\Mono.Cecil.dll</HintPath>
+        </Reference>
+        <Reference Include="MonoMod.Utils">
+            <HintPath>$(GORILLATAG_PATH)\BepInEx\core\MonoMod.Utils.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AnimationModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Fusion">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Fusion.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="Photon">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\Photon3Unity3D.dll</HintPath>
+        </Reference>
+        <Reference Include="PhotonNetwork">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\PhotonRealtime.dll</HintPath>
+        </Reference>
+        <Reference Include="PhotonNetworking">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\PhotonUnityNetworking.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Utilla">
+            <HintPath>$(GORILLATAG_PATH)/BepInEx\plugins\Utilla\Utilla.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TextCoreFontEngineModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.TextCoreFontEngineModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TextCoreTextEngineModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.TextCoreTextEngineModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.UI.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.XR">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.XRModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
 </Project>
