@@ -12,8 +12,23 @@
 
 ## Requirements
 - Latest version of Utilla
-- **NO** Computer Interface (for now since it tends to break the entire mod)
+- MonkeNotificationLib (Included)
 
+## Build
+To build Fall Monke from source use the following commands:
+```bash
+git clone https://github.com/CrafterbotOfficial/FallMonke.git
+cd FallMonke
+setx GORILLATAG_PATH "Your Gorilla Tag path C:\\Programs\Steam\Example"
+dotnet build -c Release -o .
+```
+or
+```bash
+git clone https://github.com/CrafterbotOfficial/FallMonke.git
+cd FallMonke
+dotnet nuget add source https://git.crafterbot.com/api/packages/GorillaTagModding/nuget/index.json
+CI=TRUE dotnet build -c Release -o . # Note: This will not copy the mod into your plugins folder
+```
 
 ## Legal
 Usage of MonkeFall is at own risk.
