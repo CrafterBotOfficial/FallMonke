@@ -19,8 +19,9 @@ To build Fall Monke from source use the following commands:
 ```bash
 git clone https://github.com/CrafterbotOfficial/FallMonke.git
 cd FallMonke
-setx GORILLATAG_PATH "Your Gorilla Tag path C:\\Programs\Steam\Example"
-dotnet build -c Release -o .
+setx GORILLATAG_PATH "C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag" # For Windows only
+dotnet build
+dotnet build -c Release
 ```
 or
 ```bash
@@ -31,6 +32,6 @@ CI=TRUE dotnet build -c Release -o . # Note: This will not copy the mod into you
 ```
 
 ## Legal
-Usage of MonkeFall is at own risk.
+Use FallMonke at your own risk.
 
 This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom. Portions of the materials contained herein are property of Another Axiom. Â©2021 Another Axiom Inc. - https://www.anotheraxiom.com/fan-content-and-mod-policy
