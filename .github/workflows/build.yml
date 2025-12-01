@@ -1,11 +1,13 @@
 name: Auto Build
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 */2 * *'
   push:
     branches: 
       - master
       - dev
-
+      
 jobs:
   auto-build:
     name: Auto Build
