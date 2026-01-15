@@ -8,7 +8,7 @@ public class ShowNotificationEventHandler : IEventHandler
     {
         if (sender.IsMasterClient && data is string message && message.Length < MaxMessageLength)
         {
-            ((CustomGameManager)CustomGameManager.instance).NotificationHandler.ShowNotification(message);
+            CustomGameManager.GetInstance().NotificationHandler.ShowNotification(message);
         }
     }
 }

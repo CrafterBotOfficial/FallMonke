@@ -4,7 +4,7 @@ public class StartGameRequestHandler : IEventHandler
 {
     public void OnEvent(NetPlayer sender, object data)
     {
-        if (CustomGameManager.instance is not CustomGameManager manager)
+        if (GorillaGameManager.instance is not CustomGameManager manager)
             return;
 
         if (manager.CurrentState != GameState.GameStateEnum.PendingStart)

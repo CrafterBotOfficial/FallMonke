@@ -12,7 +12,7 @@ public class PendingStart : IGameState
 
     public GameStateEnum CheckGameState(GameStateDetails details)
     {
-        var manager = (CustomGameManager)CustomGameManager.instance;
+        var manager = (CustomGameManager)GorillaGameManager.instance;
 
         if (!countdown && manager.CanStartGame())
         {
@@ -45,12 +45,12 @@ public class PendingStart : IGameState
     public void OnSwitchTo()
     {
         countdown = false;
-        ((CustomGameManager)CustomGameManager.instance).StartCoroutine(WorldManager.Instance.ResetTilesCorountine());
+        ((CustomGameManager)GorillaGameManager.instance).StartCoroutine(WorldManager.Instance.ResetTilesCorountine());
     }
 
     public GameBoardText GetBoardText()
     {
-        var manager = (CustomGameManager)CustomGameManager.instance;
+        var manager = (CustomGameManager)GorillaGameManager.instance;
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine(string.Empty);
         stringBuilder.AppendLine(string.Empty);

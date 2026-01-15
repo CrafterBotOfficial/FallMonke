@@ -6,14 +6,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using FallMonke.Hexagon;
-using GorillaTag.Cosmetics;
 using System.Collections;
 
 namespace FallMonke;
 
 public sealed class WorldManager
 {
-    private static object padLock = new object();
+    private static readonly object padLock = new();
 
     private static readonly Lazy<WorldManager> instance = new Lazy<WorldManager>(() => new WorldManager());
     public static WorldManager Instance => instance.Value; 
@@ -37,10 +36,7 @@ public sealed class WorldManager
     {
         lock (padLock)
         {
-            if (loadWorldTask is null)
-            {
-                loadWorldTask = LoadWorld();
-            }
+            loadWorldTask ??= LoadWorld();
         }
         await loadWorldTask;
 
@@ -56,12 +52,12 @@ public sealed class WorldManager
 
     private void SetWorldActive(bool active)
     {
-        if (sceneParent != null)
+        if (sceneParent is not null)
         {
             sceneParent.SetActive(active);
             return;
         }
-        Main.Log("World is null", BepInEx.Logging.LogLevel.Error);
+        Main.Log("World isn't defined", BepInEx.Logging.LogLevel.Error);
     }
 
     public Task LoadWorld()
@@ -74,7 +70,7 @@ public sealed class WorldManager
         var bundleCreateRequest = AssetBundle.LoadFromStreamAsync(assetReaderStream);
         bundleCreateRequest.completed += _ =>
         {
-            Main.Log(bundleCreateRequest.assetBundle.GetAllScenePaths());
+            // Main.Log(bundleCreateRequest.assetBundle.GetAllScenePaths());
             assetReaderStream.Dispose();
 
             var loadSceneOperation = SceneManager.LoadSceneAsync("Crafterbot", LoadSceneMode.Additive);
@@ -159,7 +155,7 @@ public sealed class WorldManager
             yield break;
         }
         var tiles = hexagonParent.Hexagons.Where(x => x.IsFalling).ToArray();
-        TeleportController.FisherYatesShuffle(tiles);  // the random seed should still be synced between players
+        TeleportController.FisherYatesShuffle(tiles);  // the random seed should still be synced between players, not that it really matters in this context
         int delay = 5000 / tiles.Length;
 
         foreach (var tile in tiles)

@@ -58,8 +58,7 @@ public class PUNNetworkController : INetworkController
 
     public Participant[] CreateParticipants()
     {
-        return GetPlayersQuery().Select(player => CreateParticipant(player))
-                                .ToArray();
+        return [..GetPlayersQuery().Select(CreateParticipant)];
     }
 
     private void SendEvent(EventCodesEnum code)
@@ -70,7 +69,7 @@ public class PUNNetworkController : INetworkController
     private void SendEvent(EventCodesEnum code, object content, ReceiverGroup receivers = ReceiverGroup.All)
     {
         var eventData = new CustomEventData((int)code, content);
-        int[] targets = ((CustomGameManager)CustomGameManager.instance).PlayerIDs;
+        int[] targets = ((CustomGameManager)GorillaGameManager.instance).PlayerIDs;
         PhotonNetwork.RaiseEvent(PUN_EVENT_CODE,
                                  eventData,
                                  new RaiseEventOptions { TargetActors = targets, Receivers = receivers },
@@ -86,26 +85,25 @@ public class PUNNetworkController : INetworkController
     {
         if (players.IsNullOrEmpty() || players.Length == 1)
         {
-            players = GetPlayersQuery().ToArray();
+            players = [..GetPlayersQuery()];
         }
         return players;
     }
 
     private IEnumerable<Player> GetPlayersQuery()
     {
-        var query = (
+        var query =
             from player in PhotonNetwork.PlayerList
             where player.ActorNumber != -1
             where player.CustomProperties.ContainsKey(CustomGameManager.MOD_KEY)
-            select player
-        );
+            select player;
         return query;
     }
 
     private Participant CreateParticipant(Player player)
     {
         var participant = new Participant(player);
-        var rig = ((CustomGameManager)CustomGameManager.instance).FindPlayerVRRig(player);
+        var rig = ((CustomGameManager)GorillaGameManager.instance).FindPlayerVRRig(player);
         participant.Manager = player.IsLocal ? rig.AddComponent<LocalPlayerManager>() : rig.AddComponent<ParticipantManager>();
         participant.Manager.Rig = rig;
         participant.Manager.Info = participant;
@@ -115,10 +113,10 @@ public class PUNNetworkController : INetworkController
     public void MakeModIdentifable()
     {
         string modVersion = Main.Instance.Info.Metadata.Version.ToString();
-        ExitGames.Client.Photon.Hashtable properties = new() { { CustomGameManager.MOD_KEY, modVersion } };
+        Hashtable properties = new() { { CustomGameManager.MOD_KEY, modVersion } };
         if (properties != null)
         {
-            Photon.Pun.PhotonNetwork.SetPlayerCustomProperties(properties);
+            PhotonNetwork.SetPlayerCustomProperties(properties);
             return;
         }
         Main.Log("Failed to set player properties, will not be allowed to participate in games", BepInEx.Logging.LogLevel.Error);
@@ -128,7 +126,7 @@ public class PUNNetworkController : INetworkController
     {
         try
         {
-            players = GetPlayersQuery().ToArray();
+            players = [..GetPlayersQuery()];
         }
         catch (Exception ex)
         {
@@ -140,7 +138,7 @@ public class PUNNetworkController : INetworkController
     {
         try
         {
-            players = GetPlayersQuery().ToArray();
+            players = [..GetPlayersQuery()];
         }
         catch (Exception ex)
         {

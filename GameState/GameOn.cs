@@ -1,3 +1,6 @@
+// todo:
+// make scoreboard actually scale with the amount of players
+
 using System.Linq;
 
 namespace FallMonke.GameState;
@@ -6,7 +9,7 @@ public class GameOn : IGameState
 {
     public GameStateEnum CheckGameState(GameStateDetails details)
     {
-        var manager = (CustomGameManager)CustomGameManager.instance;
+        var manager = (CustomGameManager)GorillaGameManager.instance;
 
         if (details.RemainingPlayers == GameConfig.MIN_PLAYERS_TO_CONTINUE)
         {
@@ -28,7 +31,7 @@ public class GameOn : IGameState
     public void OnSwitchTo()
     {
         Main.Log("GameOn: Im getting called, things are starting up");
-        var manager = (CustomGameManager)CustomGameManager.instance;
+        var manager = (CustomGameManager)GorillaGameManager.instance;
         manager.CreateParticipants();
         Main.Log($"{manager.Players.Length}/{NetworkSystem.Instance.AllNetPlayers.Length} players Participanting");
         manager.NotificationHandler.ShowNotification("Game on!");
@@ -45,9 +48,9 @@ public class GameOn : IGameState
 
     public GameBoardText GetBoardText()
     {
-        var manager = (CustomGameManager)CustomGameManager.instance;
+        var manager = CustomGameManager.GetInstance();
         if (manager.Players.IsNullOrEmpty())
-            return new();
+            return new GameBoardText("An error occured, please reset.", default);
 
         var stringBuilder = new System.Text.StringBuilder();
         var players = manager.Players.OrderBy(player => !player.IsDead);
@@ -62,6 +65,6 @@ public class GameOn : IGameState
 
     private Participant GetWinner()
     {
-        return ((CustomGameManager)CustomGameManager.instance).Players.First(x => x.IsAlive);
+        return CustomGameManager.GetInstance().Players.First(x => x.IsAlive);
     }
 }

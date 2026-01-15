@@ -18,7 +18,7 @@ public class Finished : IGameState
 
     public void OnSwitchTo()
     {
-        var manager = (CustomGameManager)CustomGameManager.instance;
+        var manager = (CustomGameManager)GorillaGameManager.instance;
         manager.StartButtonPressed = false;
 
         manager.NotificationHandler.ShowNotification("Getting ready for next game...");
