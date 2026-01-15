@@ -1,7 +1,3 @@
-/*
-Should remove all references to PUN as it seems it will be removed in future updates, should rely on the FallMonke.Networking and NetworkSystems instead
-*/
-
 using FallMonke.GameState;
 using FallMonke.NotificationSystem;
 using FallMonke.Networking;
@@ -12,6 +8,7 @@ using GorillaGameModes;
 using Fusion;
 using System.Collections;
 using UnityEngine;
+using System;
 
 namespace FallMonke;
 
@@ -53,9 +50,9 @@ public class CustomGameManager : GorillaGameManager
 
         StartButtonPressed = false;
 
-        NotificationHandler = new NotificationSystem.MonkeNotificationLibWrapper();
+        NotificationHandler = new MonkeNotificationLibWrapper();
 
-        NetworkController = new Networking.PUNNetworkController();
+        NetworkController = new PUNNetworkController();
         NetworkController.MakeModIdentifable();
         NetworkController.SetupEventHandler();
 
@@ -78,13 +75,13 @@ public class CustomGameManager : GorillaGameManager
     public void CreateParticipants()
     {
         Players = NetworkController.CreateParticipants();
-        PlayerIDs = Players.Select(x => x.Player.ActorNumber).ToArray();
+        PlayerIDs = [..Players.Select(x => x.Player.ActorNumber)];
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 
     public void UpdateBoard()
     {
-        if (CurrentStateHandler != null)
+        if (CurrentStateHandler is not null)
         {
             var text = CurrentStateHandler.GetBoardText();
             WorldManager.Instance.SetBoardText(text.Title, text.Body);
@@ -184,7 +181,7 @@ public class CustomGameManager : GorillaGameManager
         if (NetworkSystem.Instance.IsMasterClient) return;
 
         int state = (int)stream.ReceiveNext();
-        if (System.Enum.IsDefined(typeof(GameStateEnum), state))
+        if (Enum.IsDefined(typeof(GameStateEnum), state))
         {
             Main.Log("Got new state " + state);
             HandleStateSwitch((GameStateEnum)state);
@@ -218,12 +215,18 @@ public class CustomGameManager : GorillaGameManager
         return (GameModeType)1760;
     }
 
-    public readonly static Dictionary<GameStateEnum, IGameState> StateHandlers = new Dictionary<GameStateEnum, IGameState>()
+    public readonly static Dictionary<GameStateEnum, IGameState> StateHandlers = new()
     {
         { GameStateEnum.PendingStart, new GameState.PendingStart() },
         { GameStateEnum.GameOn, new GameState.GameOn() },
         { GameStateEnum.Finished, new GameState.Finished() },
     };
+
+    /// <summary>
+    /// All calls to this must be made when the game is on, otherwise will throw an exception.
+    /// </summary>
+    internal static CustomGameManager GetInstance() =>
+        instance as CustomGameManager ?? throw new Exception("Game manager not yet created");
 }
 
 public record struct GameStateDetails

@@ -9,7 +9,7 @@ public static class TeleportController
 
     public static void CreateStumpAnchor()
     {
-        Vector3 position = new Vector3(-66.6f, 12f, -80.6f);
+        var position = new Vector3(-66.6f, 12f, -80.6f);
         stumpSpawnpoint = new GameObject().transform;
         stumpSpawnpoint.position = position;
     }
@@ -24,12 +24,10 @@ public static class TeleportController
         if (GorillaGameManager.instance is not CustomGameManager manager)
             return;
 
-        UnityEngine.Random.InitState(seed);
-        Transform[] spawnPoints = WorldManager.Instance.GetParent()
+        Random.InitState(seed);
+        Transform[] spawnPoints = [..WorldManager.Instance.GetParent()
                                                        .Find("SpawnPoints")
-                                                       .GetComponentsInChildren<Transform>()
-                                                       .ToList()
-                                                       .ToArray();
+                                                       .GetComponentsInChildren<Transform>()];
         FisherYatesShuffle(spawnPoints);
 
         var players = NetworkSystem.Instance.AllNetPlayers.OrderBy(x => x.ActorNumber).ToArray();
@@ -66,10 +64,8 @@ public static class TeleportController
         int n = items.Length;
         for (int i = n - 1; i > 0; i--)
         {
-            int j = UnityEngine.Random.Range(0, i + 1);
-            object temp = items[i];
-            items[i] = items[j];
-            items[j] = temp;
+            int j = Random.Range(0, i + 1);
+            (items[i], items[j]) = (items[j], items[i]);
         }
     }
 }

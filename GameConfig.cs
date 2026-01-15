@@ -1,4 +1,3 @@
-
 namespace FallMonke;
 
 public static class GameConfig

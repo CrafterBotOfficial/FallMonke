@@ -42,7 +42,9 @@ public class LocalPlayerManager : ParticipantManager
 
         if (Info.Player.IsLocal && !manager.CooldownInAffect)
         {
+#pragma warning disable IDE0018
             FallableHexagon hexagon;
+#pragma warning restore IDE0018
 
             // body down raycast
             if (TryRaycastToTerrain(Rig.transform.position, 1f, out hexagon))

@@ -9,7 +9,7 @@ namespace FallMonke.Networking;
 
 public class PUNEventHandler : IOnEventCallback, IDisposable
 {
-    private static Dictionary<EventCodesEnum, IEventHandler> eventHandlers = new Dictionary<EventCodesEnum, IEventHandler>()
+    private static readonly Dictionary<EventCodesEnum, IEventHandler> eventHandlers = new()
     {
         { EventCodesEnum.FALL_TILE, new EventHandlers.FallHexagonEventHandler() },
         { EventCodesEnum.SPAWN_PLAYER_ON_RANDOM_TILE, new EventHandlers.SpawnPlayerEventHandler() },
@@ -36,7 +36,7 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
             if (photonEvent.Code != PUNNetworkController.PUN_EVENT_CODE)
                 return;
 
-            if (CustomGameManager.instance is not CustomGameManager)
+            if (GorillaGameManager.instance is not CustomGameManager)
                 return;
 
             if (photonEvent.CustomData is not CustomEventData eventData)

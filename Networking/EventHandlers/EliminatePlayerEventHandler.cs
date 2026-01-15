@@ -6,7 +6,7 @@ public class EliminatePlayerEventHandler : IEventHandler
 {
     public void OnEvent(NetPlayer sender, object data)
     {
-        var manager = (CustomGameManager)CustomGameManager.instance;
+        var manager = CustomGameManager.GetInstance();
 
         if (manager.CurrentState != GameState.GameStateEnum.GameOn)
         {

@@ -20,7 +20,7 @@ public class ParticipantManager : MonoBehaviour
         string message = Info.Player.IsLocal 
             ? "You have been eliminated"
             : $"{Info.Player.SanitizedNickName} has been eliminated";
-        ((CustomGameManager)CustomGameManager.instance).NotificationHandler.ShowNotification(message);
+        ((CustomGameManager)GorillaGameManager.instance).NotificationHandler.ShowNotification(message);
     }
 
     // handle player leave
@@ -29,7 +29,7 @@ public class ParticipantManager : MonoBehaviour
         Info.IsDead = true;
         Destroy(this);
 
-        if (!Info.Player.IsLocal && CustomGameManager.instance is CustomGameManager manager)
+        if (!Info.Player.IsLocal && GorillaGameManager.instance is CustomGameManager manager)
         {
             manager.NotificationHandler.ShowNotification($"{Info.Player.SanitizedNickName} has left the game");
         }
