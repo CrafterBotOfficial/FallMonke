@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/CrafterBotOfficial/FallMonke/blob/master/Marketing/HowToPlay.gif?raw=true" alt="GorillaHands thumbnail" img width="auto" height="auto">
+  <img src="https://github.com/CrafterBotOfficial/FallMonke/blob/master/Marketing/HowToPlay.gif?raw=true" alt="FallMonke thumbnail" img width="auto" height="auto">
 </p>
 
 ---
