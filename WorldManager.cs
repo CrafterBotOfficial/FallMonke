@@ -98,6 +98,7 @@ public sealed class WorldManager
     {
         Main.Log("Scene loaded", BepInEx.Logging.LogLevel.Message);
 
+        ZoneManagement.AddSceneToForceStayLoaded("Crafterbot");
         sceneParent = SceneManager.GetSceneByName("Crafterbot").GetRootGameObjects()[0]; // GameObject.Find("/SceneParent");
 
         hexagonParent = GameObject.FindFirstObjectByType<HexagonParent>();
