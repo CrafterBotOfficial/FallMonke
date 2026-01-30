@@ -21,6 +21,11 @@ public class Main : BaseUnityPlugin
 
             HarmonyLib.Harmony.CreateAndPatchAll(typeof(Main).Assembly);
             TeleportController.CreateStumpAnchor();
+
+            WorldManager.Instance.LoadWorldTask = WorldManager.Instance.LoadWorld().ContinueWith(t =>
+            {
+                Log(t.Exception, LogLevel.Fatal);
+            }, continuationOptions: System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
         };
     }
 

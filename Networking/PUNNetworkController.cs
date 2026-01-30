@@ -7,7 +7,7 @@ using ExitGames.Client.Photon;
 
 namespace FallMonke.Networking;
 
-public class PUNNetworkController : INetworkController 
+public class PUNNetworkController : INetworkController
 {
     private PUNEventHandler eventHandler;
     private Player[] players;
@@ -56,7 +56,7 @@ public class PUNNetworkController : INetworkController
 
     public Participant[] CreateParticipants()
     {
-        return [..GetPlayersQuery().Select(CreateParticipant)];
+        return [.. GetPlayersQuery().Select(CreateParticipant)];
     }
 
     private void SendEvent(EventCodesEnum code)
@@ -82,7 +82,7 @@ public class PUNNetworkController : INetworkController
     {
         if (players.IsNullOrEmpty() || players.Length == 1)
         {
-            players = [..GetPlayersQuery()];
+            players = [.. GetPlayersQuery()];
         }
         return players;
     }
@@ -123,7 +123,7 @@ public class PUNNetworkController : INetworkController
     {
         try
         {
-            players = [..GetPlayersQuery()];
+            players = [.. GetPlayersQuery()];
         }
         catch (Exception ex)
         {
@@ -135,7 +135,7 @@ public class PUNNetworkController : INetworkController
     {
         try
         {
-            players = [..GetPlayersQuery()];
+            players = [.. GetPlayersQuery()];
         }
         catch (Exception ex)
         {

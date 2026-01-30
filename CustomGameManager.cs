@@ -41,12 +41,7 @@ public class CustomGameManager : GorillaGameManager
         base.StartPlaying();
         Main.Log("CustomGameManager starting!", BepInEx.Logging.LogLevel.Message);
 
-// #pragma warning disable CS4014
-        WorldManager.Instance.ActivateWorld().ContinueWith(t =>
-        {
-            Main.Log(t.Exception, BepInEx.Logging.LogLevel.Fatal);
-        }, continuationOptions: System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
-// #pragma warning restore CS4014
+        WorldManager.Instance.ActivateWorld();
 
         StartButtonPressed = false;
 
@@ -75,7 +70,7 @@ public class CustomGameManager : GorillaGameManager
     public void CreateParticipants()
     {
         Players = NetworkController.CreateParticipants();
-        PlayerIDs = [..Players.Select(x => x.Player.ActorNumber)];
+        PlayerIDs = [.. Players.Select(x => x.Player.ActorNumber)];
         LocalPlayer = Players.First(x => x.Player.IsLocal);
     }
 

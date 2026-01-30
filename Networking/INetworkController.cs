@@ -1,7 +1,7 @@
 namespace FallMonke.Networking;
 
 // TODO add fusion implimentation
-public interface INetworkController 
+public interface INetworkController
 {
     public void SetupEventHandler();
 

@@ -17,7 +17,7 @@ public class ParticipantManager : MonoBehaviour
         Main.Log($"{Info.Player.NickName}:{Info.Player.ActorNumber} has been eliminated");
         Info.IsDead = true;
 
-        string message = Info.Player.IsLocal 
+        string message = Info.Player.IsLocal
             ? "You have been eliminated"
             : $"{Info.Player.SanitizedNickName} has been eliminated";
         ((CustomGameManager)GorillaGameManager.instance).NotificationHandler.ShowNotification(message);

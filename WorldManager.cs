@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using FallMonke.Hexagon;
 using System.Collections;
+using BepInEx.Logging;
 
 namespace FallMonke;
 
@@ -15,11 +16,11 @@ public sealed class WorldManager
     private static readonly object padLock = new();
 
     private static readonly Lazy<WorldManager> instance = new Lazy<WorldManager>(() => new WorldManager());
-    public static WorldManager Instance => instance.Value; 
+    public static WorldManager Instance => instance.Value;
 
     public bool SceneLoaded => sceneLoaded;
 
-    private Task loadWorldTask;
+    public Task LoadWorldTask;
 #pragma warning disable CS0414
     private volatile bool sceneLoaded;
 #pragma warning restore CS0414
@@ -32,13 +33,13 @@ public sealed class WorldManager
     public TMP_FontAsset GorillaTextFont;
     private TextMeshPro boardText;
 
-    public async Task ActivateWorld()
+    public void ActivateWorld()
     {
-        lock (padLock)
+        if (LoadWorldTask is null || !LoadWorldTask.IsCompleted)
         {
-            loadWorldTask ??= LoadWorld();
+            Main.Log("World hasn't loaded yet trying to join.", LogLevel.Fatal);
+            Application.Quit(1);
         }
-        await loadWorldTask;
 
         Main.Log("Teleporting player to world");
         SetWorldActive(true);
