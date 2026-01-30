@@ -33,22 +33,13 @@ public class PUNEventHandler : IOnEventCallback, IDisposable
     {
         try
         {
-            if (photonEvent.Code != PUNNetworkController.PUN_EVENT_CODE)
-                return;
-
             if (GorillaGameManager.instance is not CustomGameManager)
                 return;
 
-            if (photonEvent.CustomData is not CustomEventData eventData)
-            {
-                Main.Log("Malformed custom event", BepInEx.Logging.LogLevel.Warning);
-                return;
-            }
-
-            if (eventHandlers.TryGetValue((EventCodesEnum)eventData.Code, out IEventHandler handler))
+            if (eventHandlers.TryGetValue((EventCodesEnum)photonEvent.Code, out IEventHandler handler))
             {
                 NetPlayer player = NetworkSystem.Instance.GetPlayer(photonEvent.Sender);
-                handler.OnEvent(player, eventData.Data);
+                handler.OnEvent(player, photonEvent.CustomData);
             }
         }
         catch (Exception ex)
