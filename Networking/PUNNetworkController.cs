@@ -9,8 +9,6 @@ namespace FallMonke.Networking;
 
 public class PUNNetworkController : INetworkController 
 {
-    public const byte PUN_EVENT_CODE = 25;
-
     private PUNEventHandler eventHandler;
     private Player[] players;
 
@@ -68,10 +66,9 @@ public class PUNNetworkController : INetworkController
 
     private void SendEvent(EventCodesEnum code, object content, ReceiverGroup receivers = ReceiverGroup.All)
     {
-        var eventData = new CustomEventData((int)code, content);
         int[] targets = ((CustomGameManager)GorillaGameManager.instance).PlayerIDs;
-        PhotonNetwork.RaiseEvent(PUN_EVENT_CODE,
-                                 eventData,
+        PhotonNetwork.RaiseEvent((byte)code,
+                                 content,
                                  new RaiseEventOptions { TargetActors = targets, Receivers = receivers },
                                  SendOptions.SendReliable);
     }
