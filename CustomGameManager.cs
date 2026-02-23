@@ -33,6 +33,9 @@ public class CustomGameManager : GorillaGameManager
     {
         base.Awake();
         SetPlayerSpeeds(canMove: true);
+
+        NetworkController = new PUNNetworkController();
+        NetworkController.MakeModIdentifable();
     }
 
     // this is called when the gamemode serializer is made 
@@ -52,8 +55,6 @@ public class CustomGameManager : GorillaGameManager
 
         NotificationHandler = new MonkeNotificationLibWrapper();
 
-        NetworkController = new PUNNetworkController();
-        NetworkController.MakeModIdentifable();
         NetworkController.SetupEventHandler();
 
         if (NetworkSystem.Instance.IsMasterClient)

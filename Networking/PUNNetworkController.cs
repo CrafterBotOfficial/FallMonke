@@ -14,7 +14,7 @@ public class PUNNetworkController : INetworkController
 
     public void SetupEventHandler()
     {
-        eventHandler = new PUNEventHandler();
+        eventHandler ??= new PUNEventHandler();
         NetworkSystem.Instance.OnPlayerJoined += OnJoin;
         NetworkSystem.Instance.OnPlayerLeft += OnLeave;
     }
