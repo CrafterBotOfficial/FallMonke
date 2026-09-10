@@ -7,7 +7,7 @@ public abstract class PressableButton : GorillaPressableButton
     public new virtual void Start()
     {
         base.Start();
-        this.gameObject.layer = 18;
+        base.gameObject.layer = 18;
         pressedMaterial = GetComponent<Material>();
         unpressedMaterial = GetComponent<Material>();
     }

@@ -55,7 +55,7 @@ public static class TeleportController
 
     private static void TeleportLocalPlayer(Transform anchor)
     {
-        GorillaLocomotion.GTPlayer.Instance.TeleportTo(anchor.transform);
+        GorillaLocomotion.GTPlayer.Instance.TeleportTo(anchor.transform, maintainVelocity: false);
     }
 
     // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle

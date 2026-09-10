@@ -4,8 +4,8 @@ using Utilla.Attributes;
 
 namespace FallMonke;
 
-[BepInPlugin("com.crafterbot.monkefall", "Fall Monke", "1.1.3")]
-[BepInDependency("org.legoandmars.gorillatag.utilla", "1.6.0"), BepInDependency("crafterbot.notificationlib", "1.1.0")]
+[BepInPlugin("com.crafterbot.monkefall", "Fall Monke", "1.1.4")]
+[BepInDependency("org.legoandmars.gorillatag.utilla", "1.7.1"), BepInDependency("crafterbot.notificationlib", "1.1.0")]
 [ModdedGamemode("FALLMONKE", "FALL MONKE", typeof(CustomGameManager))]
 public class Main : BaseUnityPlugin
 {
@@ -18,8 +18,6 @@ public class Main : BaseUnityPlugin
         {
             if (NetworkSystem.Instance is not NetworkSystemPUN)
                 return;
-
-            HarmonyLib.Harmony.CreateAndPatchAll(typeof(Main).Assembly);
             TeleportController.CreateStumpAnchor();
         };
     }

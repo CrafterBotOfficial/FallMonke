@@ -103,5 +103,8 @@
         <Reference Include="UnityEngine.UIModule">
             <HintPath>$(GORILLATAG_PATH)\Gorilla Tag_Data\Managed\UnityEngine.UIModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.Collections">
+            <HintPath>$(GORILLATAG_PATH)/Gorilla Tag_Data/Managed/Unity.Collections.dll</HintPath>
+        </Reference>
     </ItemGroup>
 </Project>
